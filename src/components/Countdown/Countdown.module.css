@@ -1,0 +1,84 @@
+.countdown {
+  display: grid;
+  gap: 1rem;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.pulse {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--amber);
+}
+
+.pulse::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--amber);
+  animation: ping 2s var(--ease) infinite;
+}
+
+@keyframes ping {
+  from {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(3.4);
+    opacity: 0;
+  }
+}
+
+.units {
+  display: flex;
+  align-items: stretch;
+}
+
+.unit {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+  padding-right: clamp(0.6rem, 3.5vw, 2.25rem);
+  margin-right: clamp(0.6rem, 3.5vw, 2.25rem);
+  border-right: 1px solid var(--line);
+}
+
+.unit:last-child {
+  padding-right: 0;
+  margin-right: 0;
+  border-right: 0;
+}
+
+.value {
+  font-family: var(--font-mono);
+  font-size: clamp(1.9rem, 6vw, 3.25rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.unitLabel {
+  font-family: var(--font-mono);
+  font-size: clamp(0.625rem, 2.6vw, 0.6875rem);
+  letter-spacing: clamp(0.08em, 0.5vw, 0.18em);
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.closing {
+  font-size: 1.25rem;
+}

@@ -1,0 +1,94 @@
+.summary {
+  display: grid;
+  border: 1px solid var(--line-strong);
+  background: var(--bg-deep);
+}
+
+.block {
+  padding: 1.1rem 1.1rem 1.25rem;
+}
+
+.block + .block {
+  border-top: 1px solid var(--line);
+}
+
+.blockHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.blockTitle {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+.edit {
+  /* 44px-tall tap target without adding visual weight */
+  min-height: 2.75rem;
+  margin-block: -0.6rem;
+  padding: 0 0.25rem;
+  background: none;
+  border: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+  text-decoration-color: var(--line-strong);
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    color 0.2s var(--ease),
+    text-decoration-color 0.2s var(--ease);
+}
+
+.edit:hover {
+  color: var(--amber);
+  text-decoration-color: var(--amber);
+}
+
+.list {
+  display: grid;
+  margin: 0;
+}
+
+.row {
+  display: grid;
+  gap: 0.1rem;
+  padding-block: 0.6rem;
+  border-top: 1px solid var(--line);
+}
+
+.term {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.value {
+  margin: 0;
+  overflow-wrap: anywhere; /* long emails and URLs must not stretch the card */
+}
+
+.empty {
+  color: var(--text-muted);
+}
+
+.mates {
+  display: grid;
+  gap: 0.25rem;
+}
+
+@media (min-width: 40rem) {
+  .row {
+    grid-template-columns: 11rem minmax(0, 1fr);
+    gap: 1rem;
+  }
+}

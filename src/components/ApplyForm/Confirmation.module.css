@@ -1,0 +1,95 @@
+.card {
+  display: grid;
+  justify-items: start;
+  gap: 1.25rem;
+  padding: clamp(1.5rem, 5vw, 3rem);
+  background: var(--bg-raised);
+  border: 1px solid var(--line-strong);
+  animation: rise 0.7s var(--ease) both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+}
+
+.badge {
+  margin-bottom: 0.25rem;
+}
+
+.tick {
+  stroke-dasharray: 48;
+  animation: draw 0.7s 0.25s var(--ease) both;
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 48;
+  }
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+.title {
+  font-size: clamp(1.75rem, 5vw, 3rem);
+  font-weight: 700;
+  font-stretch: 125%;
+  font-variation-settings: "wdth" 125;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  overflow-wrap: anywhere; /* a very long first name must not overflow on phones */
+}
+
+.title:focus {
+  outline: none; /* focus is moved here programmatically; it isn't an interactive control */
+}
+
+.lead {
+  max-width: 34rem;
+  font-size: 1.125rem;
+  color: var(--text-muted);
+}
+
+.email {
+  color: var(--text);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.facts {
+  display: grid;
+  gap: 1.25rem;
+  width: 100%;
+  margin-block: 0.5rem;
+  padding-block: 1.5rem;
+  border-block: 1px solid var(--line);
+}
+
+.facts dt {
+  margin-bottom: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.facts dd {
+  margin: 0;
+}
+
+@media (min-width: 40rem) {
+  .facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

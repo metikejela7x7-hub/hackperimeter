@@ -1,0 +1,86 @@
+.card {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 2.25rem);
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  background: var(--bg-raised);
+  border: 1px solid var(--line-strong);
+}
+
+.form {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 2rem);
+}
+
+.stepHead {
+  display: grid;
+  gap: 0.6rem;
+  padding-top: clamp(0.25rem, 1vw, 0.5rem);
+}
+
+.stepTitle {
+  display: grid;
+  gap: 0.6rem;
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  font-weight: 700;
+  font-stretch: 125%;
+  font-variation-settings: "wdth" 125;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.stepTitle:focus {
+  outline: none; /* focused by script on step change; not an interactive control */
+}
+
+.stepCount {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-variation-settings: normal;
+  letter-spacing: 0.2em;
+  color: var(--amber);
+}
+
+.stepBlurb {
+  max-width: 36rem;
+  color: var(--text-muted);
+}
+
+.submitError {
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--error);
+  color: var(--error);
+  line-height: 1.45;
+}
+
+.actions {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+
+/* full-width, arrow pushed to the edge, like the mobile nav CTA */
+.actions > button {
+  width: 100%;
+  justify-content: space-between;
+}
+
+@media (min-width: 40rem) {
+  .actions {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .actions > button {
+    width: auto;
+  }
+
+  /* keep the primary action on the right even when Back is absent */
+  .actions > button:only-child {
+    margin-left: auto;
+  }
+}

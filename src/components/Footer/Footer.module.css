@@ -1,0 +1,104 @@
+.footer {
+  border-top: 1px solid var(--line-strong);
+  background: var(--bg-deep);
+  padding-block: clamp(3.5rem, 8vw, 6rem) 2rem;
+}
+
+.inner {
+  display: grid;
+  gap: clamp(3rem, 7vw, 5rem);
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.top {
+  display: grid;
+  gap: 2.5rem;
+}
+
+.pitch {
+  display: grid;
+  gap: 1.25rem;
+  justify-items: start;
+}
+
+.mark {
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: 800;
+  font-stretch: 125%;
+  font-variation-settings: "wdth" 125;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.mark span {
+  font-weight: 300;
+  color: var(--text-muted);
+}
+
+/* stacked on narrow screens so the expanded wordmark never overflows */
+@media (max-width: 40rem) {
+  .mark span {
+    display: block;
+  }
+}
+
+.slogan {
+  font-size: 1.25rem;
+  color: var(--text-muted);
+}
+
+.col {
+  display: grid;
+  align-content: start;
+  gap: 0.4rem;
+  font-style: normal;
+}
+
+.colTitle {
+  margin-bottom: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.link {
+  display: inline-block;
+  padding-block: 0.15rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.link:hover {
+  color: var(--amber);
+}
+
+.bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+}
+
+@media (min-width: 48rem) {
+  .top {
+    grid-template-columns: 1.6fr 1fr 1.2fr;
+    gap: 3rem;
+  }
+}

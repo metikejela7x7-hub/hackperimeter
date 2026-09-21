@@ -1,0 +1,230 @@
+.header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 50;
+  height: var(--header-h);
+}
+
+/* Blur lives on a pseudo-element: backdrop-filter on the header itself would
+   turn it into the containing block for the fixed mobile overlay. */
+.header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(18, 19, 21, 0.92);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  opacity: 0;
+  transition: opacity 0.3s var(--ease);
+}
+
+.header[data-solid="true"]::before {
+  opacity: 1;
+}
+
+.inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: var(--max);
+  height: 100%;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.brand {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  text-decoration: none;
+}
+
+.mark {
+  color: var(--text);
+}
+
+.wordmark {
+  font-size: 1rem;
+  font-weight: 800;
+  font-stretch: 125%;
+  font-variation-settings: "wdth" 125;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wordmark span {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+/* ---------- Mobile menu (default) ---------- */
+
+.toggle {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-right: -0.5rem;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.bars,
+.bars::before {
+  display: block;
+  width: 1.5rem;
+  height: 1.5px;
+  background: var(--text);
+  transition:
+    transform 0.35s var(--ease),
+    background-color 0.2s;
+}
+
+.bars {
+  position: relative;
+  transform: translateY(-4px);
+}
+
+.bars::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 0;
+}
+
+.toggle[aria-expanded="true"] .bars {
+  transform: rotate(45deg);
+}
+
+.toggle[aria-expanded="true"] .bars::before {
+  top: 0;
+  transform: rotate(-90deg);
+}
+
+.nav {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: calc(var(--header-h) + 1.5rem) var(--gutter) 2.5rem;
+  background: var(--bg);
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-0.75rem);
+  transition:
+    opacity 0.3s var(--ease),
+    transform 0.4s var(--ease),
+    visibility 0s linear 0.4s;
+}
+
+.nav[data-open="true"] {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition-delay: 0s;
+}
+
+.links {
+  display: grid;
+}
+
+.link {
+  display: block;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: clamp(1.75rem, 8vw, 2.5rem);
+  font-weight: 700;
+  font-stretch: 125%;
+  font-variation-settings: "wdth" 125;
+  text-transform: uppercase;
+  text-decoration: none;
+  letter-spacing: -0.005em;
+  transition: color 0.2s;
+}
+
+.link:hover {
+  color: var(--amber);
+}
+
+.cta > a {
+  width: 100%;
+  justify-content: space-between;
+  padding-block: 1.1rem;
+}
+
+/* ---------- Desktop ---------- */
+
+@media (min-width: 56rem) {
+  .toggle {
+    display: none;
+  }
+
+  .nav {
+    position: static;
+    z-index: auto;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 2rem;
+    padding: 0;
+    background: none;
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+  }
+
+  .links {
+    display: flex;
+    gap: 1.75rem;
+  }
+
+  .link {
+    position: relative;
+    padding: 0.4rem 0;
+    border: 0;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    font-stretch: 100%;
+    font-variation-settings: normal;
+    letter-spacing: 0.16em;
+    color: var(--text-muted);
+  }
+
+  .link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--amber);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s var(--ease);
+  }
+
+  .link:hover {
+    color: var(--text);
+  }
+
+  .link:hover::after {
+    transform: scaleX(1);
+  }
+
+  .cta > a {
+    width: auto;
+    padding-block: 0.7rem;
+  }
+}

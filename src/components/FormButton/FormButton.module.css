@@ -1,0 +1,13 @@
+.button {
+  cursor: pointer;
+}
+
+/* <button> has a UA background; the link Button's ghost variant doesn't set one. */
+.ghost {
+  background: transparent;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
