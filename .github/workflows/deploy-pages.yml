@@ -30,6 +30,7 @@ jobs:
       - run: npm run build
         env:
           GITHUB_ACTIONS: "true"
+          NEXT_PUBLIC_BASE_PATH: "/hackperimeter"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
