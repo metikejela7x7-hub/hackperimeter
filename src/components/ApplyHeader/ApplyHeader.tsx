@@ -1,11 +1,12 @@
 import styles from "./ApplyHeader.module.css";
+import { HOME_URL } from "@/data/event";
 
 /** Slim header for /apply. The homepage Navbar's links are in-page anchors, so it can't be reused here. */
 export function ApplyHeader() {
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
-        <a className={styles.brand} href="/" aria-label="HackPerimeter home">
+        <a className={styles.brand} href={HOME_URL} aria-label="HackPerimeter home">
           <svg
             className={styles.mark}
             viewBox="0 0 32 32"
@@ -33,7 +34,7 @@ export function ApplyHeader() {
           </span>
         </a>
 
-        <a className={styles.back} href="/" aria-label="Back to site">
+        <a className={styles.back} href={HOME_URL} aria-label="Back to site">
           <span aria-hidden="true">←</span>
           <span>Back</span>
           <span className={styles.backMore}>to site</span>

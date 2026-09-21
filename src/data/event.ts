@@ -28,7 +28,9 @@ export const EVENT = {
  * GitHub Pages hosts this project under /hackperimeter; other hosts use /.
  * The build workflow supplies NEXT_PUBLIC_BASE_PATH only for GitHub Pages.
  */
-export const APPLY_URL = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/apply/`;
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+export const HOME_URL = BASE_PATH ? `${BASE_PATH}/` : "/";
+export const APPLY_URL = `${BASE_PATH}/apply/`;
 
 export const NAV_LINKS = [
   { href: "#facts", label: "Facts" },

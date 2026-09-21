@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { EVENT } from "@/data/event";
+import { EVENT, HOME_URL } from "@/data/event";
 import { Button } from "@/components/Button/Button";
 import styles from "./Confirmation.module.css";
 
@@ -79,7 +79,7 @@ export function Confirmation({ name, email }: ConfirmationProps) {
         </div>
       </dl>
 
-      <Button href="/" variant="ghost" size="lg">
+      <Button href={HOME_URL} variant="ghost" size="lg">
         Back to homepage
       </Button>
     </section>
