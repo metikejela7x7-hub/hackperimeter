@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { FAQ } from "@/data/event";
 import { SectionHeading } from "@/components/SectionHeading/SectionHeading";
+import { useReveal } from "@/hooks/useReveal";
 import styles from "./Faq.module.css";
 
 export function Faq() {
   const [openId, setOpenId] = useState<string | null>(FAQ[0].id);
+  const list = useReveal<HTMLDivElement>();
 
   return (
     <section id="faq" className={styles.section} aria-labelledby="faq-title">
@@ -18,13 +20,18 @@ export function Faq() {
           title="Questions"
         />
 
-        <div className={styles.list}>
-          {FAQ.map((item) => {
+        <div ref={list.ref} className={`${styles.list} reveal-group`} data-visible={list.visible}>
+          {FAQ.map((item, i) => {
             const open = openId === item.id;
             const buttonId = `faq-button-${item.id}`;
             const panelId = `faq-panel-${item.id}`;
             return (
-              <div key={item.id} className={styles.item} data-open={open}>
+              <div
+                key={item.id}
+                className={styles.item}
+                data-open={open}
+                style={{ "--i": i } as React.CSSProperties}
+              >
                 <h3 className={styles.heading}>
                   <button
                     type="button"

@@ -38,6 +38,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${archivo.variable} ${plexMono.variable}`}>
       <body>
+        {/* Scroll-reveals need JS to ever set data-visible; without it, show everything. */}
+        <noscript>
+          <style>{`.reveal, .reveal-group > * { opacity: 1 !important; transform: none !important; }`}</style>
+        </noscript>
         <a className="skip-link" href="#main">
           Skip to content
         </a>

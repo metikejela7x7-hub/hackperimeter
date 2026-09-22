@@ -10,6 +10,7 @@ const DESKTOP_QUERY = "(min-width: 56rem)";
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [progress, setProgress] = useState(0);
   const headerRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const navRef = useRef<HTMLElement>(null);
@@ -19,12 +20,20 @@ export function Navbar() {
     if (returnFocus) toggleRef.current?.focus();
   }, []);
 
-  // Solid bar once the page has scrolled.
+  // Solid bar once the page has scrolled, plus how far through the page we are.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 8);
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(max > 0 ? Math.min(1, window.scrollY / max) : 0);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
 
   // Menu behaviour while open: scroll lock, Escape, focus trap, auto-close on desktop.
@@ -77,7 +86,13 @@ export function Navbar() {
       ref={headerRef}
       className={styles.header}
       data-solid={scrolled || open}
+      data-nav-open={open}
     >
+      <span
+        className={styles.progress}
+        style={{ transform: `scaleX(${progress})` }}
+        aria-hidden="true"
+      />
       <div className={styles.inner}>
         <a className={styles.brand} href="#top" onClick={() => close()}>
           <svg

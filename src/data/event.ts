@@ -16,6 +16,7 @@ export const EVENT = {
   address: "555 Indian Creek Drive, Clarkston, GA",
   teamSize: "2–4",
   prize: "$1,000",
+  prizeAmount: 1000,
   /**
    * Clarkston, GA is on Eastern Time; DST ends Nov 1, 2026, so Nov 6 is EST (UTC−5).
    * Fixed UTC instants keep the countdown identical for every viewer's timezone.
