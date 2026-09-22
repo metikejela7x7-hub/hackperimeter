@@ -95,6 +95,27 @@ section[id] {
   scroll-margin-top: var(--header-h);
 }
 
+/* Scroll-reveal: paired with the useReveal hook, which sets data-visible
+   once an element enters the viewport. `.reveal` fades/rises a single
+   element; `.reveal-group` staggers its direct children via --i (set inline
+   per item). Both degrade gracefully — see the <noscript> fallback in
+   layout.tsx for when JS never runs. */
+.reveal,
+.reveal-group > * {
+  opacity: 0;
+  transform: translateY(1.1rem);
+  transition:
+    opacity 0.7s var(--ease),
+    transform 0.7s var(--ease);
+  transition-delay: calc(var(--i, 0) * 70ms);
+}
+
+.reveal[data-visible="true"],
+.reveal-group[data-visible="true"] > * {
+  opacity: 1;
+  transform: none;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

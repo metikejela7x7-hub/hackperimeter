@@ -69,14 +69,25 @@
   gap: 0.35rem;
   padding-block: 1.25rem;
   border-bottom: 1px solid var(--line);
+  transition: border-color 0.25s var(--ease);
+}
+
+.row:hover {
+  border-bottom-color: var(--line-strong);
 }
 
 .term {
+  position: relative;
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--text-faint);
+  transition: color 0.25s var(--ease);
+}
+
+.row:hover .term {
+  color: var(--amber);
 }
 
 .value {

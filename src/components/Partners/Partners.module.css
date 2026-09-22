@@ -16,12 +16,35 @@
 }
 
 .item {
+  position: relative;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 1.5rem;
   padding-block: clamp(1.5rem, 4vw, 2.5rem);
+  padding-left: 1rem;
+  margin-left: -1rem;
   border-bottom: 1px solid var(--line);
+  transition: background-color 0.3s var(--ease);
+}
+
+.item::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: var(--amber);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.35s var(--ease);
+}
+
+.item:hover {
+  background: linear-gradient(90deg, var(--amber-soft), transparent 70%);
+}
+
+.item:hover::before {
+  transform: scaleY(1);
 }
 
 .name {
@@ -33,6 +56,11 @@
   letter-spacing: -0.02em;
   text-transform: uppercase;
   overflow-wrap: anywhere;
+  transition: color 0.25s var(--ease);
+}
+
+.item:hover .name {
+  color: var(--amber);
 }
 
 .role {

@@ -1,5 +1,9 @@
+"use client";
+
 import { EVENT } from "@/data/event";
 import { SectionHeading } from "@/components/SectionHeading/SectionHeading";
+import { Counter } from "@/components/Counter/Counter";
+import { useReveal } from "@/hooks/useReveal";
 import styles from "./EventFacts.module.css";
 
 const DETAILS = [
@@ -10,6 +14,9 @@ const DETAILS = [
 ] as const;
 
 export function EventFacts() {
+  const numbers = useReveal<HTMLDivElement>();
+  const details = useReveal<HTMLDListElement>();
+
   return (
     <section id="facts" className={styles.section} aria-labelledby="facts-title">
       <div className={styles.inner}>
@@ -21,14 +28,18 @@ export function EventFacts() {
         />
 
         <div className={styles.body}>
-          <div className={styles.numbers}>
+          <div ref={numbers.ref} className={`${styles.numbers} reveal`} data-visible={numbers.visible}>
             <p className={styles.prize}>
-              <span className={styles.prizeValue}>{EVENT.prize}</span>
+              <span className={styles.prizeValue}>
+                <Counter value={EVENT.prizeAmount} prefix="$" />
+              </span>
               <span className={styles.numLabel}>Cash-prize pool</span>
             </p>
             <div className={styles.pair}>
               <p className={styles.stat}>
-                <span className={styles.statValue}>12</span>
+                <span className={styles.statValue}>
+                  <Counter value={12} />
+                </span>
                 <span className={styles.numLabel}>Hours on the clock</span>
               </p>
               <p className={styles.stat}>
@@ -38,9 +49,13 @@ export function EventFacts() {
             </div>
           </div>
 
-          <dl className={styles.details}>
-            {DETAILS.map((item) => (
-              <div key={item.term} className={styles.row}>
+          <dl
+            ref={details.ref}
+            className={`${styles.details} reveal-group`}
+            data-visible={details.visible}
+          >
+            {DETAILS.map((item, i) => (
+              <div key={item.term} className={styles.row} style={{ "--i": i } as React.CSSProperties}>
                 <dt className={styles.term}>{item.term}</dt>
                 <dd className={styles.value}>
                   {item.value}

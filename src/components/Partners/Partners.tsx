@@ -1,8 +1,13 @@
+"use client";
+
 import { PARTNERS } from "@/data/event";
 import { SectionHeading } from "@/components/SectionHeading/SectionHeading";
+import { useReveal } from "@/hooks/useReveal";
 import styles from "./Partners.module.css";
 
 export function Partners() {
+  const list = useReveal<HTMLUListElement>();
+
   return (
     <section id="partners" className={styles.section} aria-labelledby="partners-title">
       <div className={styles.inner}>
@@ -13,14 +18,17 @@ export function Partners() {
           title="Backing the crew"
         />
 
-        <ul className={styles.list}>
-          {PARTNERS.map((partner) => (
-            <li key={partner.name} className={styles.item}>
+        <ul ref={list.ref} className={`${styles.list} reveal-group`} data-visible={list.visible}>
+          {PARTNERS.map((partner, i) => (
+            <li key={partner.name} className={styles.item} style={{ "--i": i } as React.CSSProperties}>
               <span className={styles.name}>{partner.name}</span>
               <span className={styles.role}>{partner.role}</span>
             </li>
           ))}
-          <li className={`${styles.item} ${styles.open}`}>
+          <li
+            className={`${styles.item} ${styles.open}`}
+            style={{ "--i": PARTNERS.length } as React.CSSProperties}
+          >
             <span className={styles.slot} aria-hidden="true" />
             <span className={styles.openText}>More partners joining soon</span>
           </li>

@@ -43,11 +43,34 @@
 }
 
 .principle {
+  position: relative;
   display: grid;
   grid-template-columns: 3rem 1fr;
   gap: 0.5rem;
   padding-block: 1.25rem;
+  padding-left: 1rem;
+  margin-left: -1rem;
   border-bottom: 1px solid var(--line);
+  transition: background-color 0.3s var(--ease);
+}
+
+.principle::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: var(--amber);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.35s var(--ease);
+}
+
+.principle:hover {
+  background: linear-gradient(90deg, var(--amber-soft), transparent 65%);
+}
+
+.principle:hover::before {
+  transform: scaleY(1);
 }
 
 .num {
@@ -56,6 +79,11 @@
   letter-spacing: 0.1em;
   color: var(--amber);
   padding-top: 0.3rem;
+  transition: transform 0.3s var(--ease);
+}
+
+.principle:hover .num {
+  transform: translateX(0.15rem);
 }
 
 .pTitle {

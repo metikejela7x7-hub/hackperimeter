@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { EVENT, HOME_URL } from "@/data/event";
+import { EVENT } from "@/data/event";
 import { Button } from "@/components/Button/Button";
 import styles from "./Confirmation.module.css";
 
@@ -30,6 +30,7 @@ export function Confirmation({ name, email }: ConfirmationProps) {
         aria-hidden="true"
         focusable="false"
       >
+        <circle className={styles.sweep} cx="32" cy="32" r="30" fill="none" stroke="var(--amber)" strokeWidth="1.5" />
         <circle cx="32" cy="32" r="30" fill="none" stroke="var(--amber)" strokeWidth="1.5" />
         <circle
           cx="32"
@@ -79,7 +80,7 @@ export function Confirmation({ name, email }: ConfirmationProps) {
         </div>
       </dl>
 
-      <Button href={HOME_URL} variant="ghost" size="lg">
+      <Button href="../" variant="ghost" size="lg">
         Back to homepage
       </Button>
     </section>

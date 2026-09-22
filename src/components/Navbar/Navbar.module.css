@@ -34,6 +34,25 @@
   padding-inline: var(--gutter);
 }
 
+/* Mission progress: how far down the page you are. Hidden while the
+   fullscreen mobile menu is open, since it would otherwise sit on top of it. */
+.progress {
+  position: absolute;
+  z-index: 2;
+  inset: auto 0 0 0;
+  height: 2px;
+  background: var(--amber);
+  transform-origin: left;
+  transition:
+    transform 0.15s linear,
+    opacity 0.2s var(--ease);
+  pointer-events: none;
+}
+
+.header[data-nav-open="true"] .progress {
+  opacity: 0;
+}
+
 .brand {
   position: relative;
   z-index: 2;

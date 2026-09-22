@@ -1,8 +1,13 @@
+"use client";
+
 import { SCHEDULE, SCHEDULE_NOTE } from "@/data/event";
 import { SectionHeading } from "@/components/SectionHeading/SectionHeading";
+import { useReveal } from "@/hooks/useReveal";
 import styles from "./Schedule.module.css";
 
 export function Schedule() {
+  const timeline = useReveal<HTMLOListElement>();
+
   return (
     <section id="schedule" className={styles.section} aria-labelledby="schedule-title">
       <div className={styles.inner}>
@@ -16,12 +21,17 @@ export function Schedule() {
           <p className={styles.note}>{SCHEDULE_NOTE}</p>
         </div>
 
-        <ol className={styles.timeline}>
-          {SCHEDULE.map((item) => (
+        <ol
+          ref={timeline.ref}
+          className={`${styles.timeline} reveal-group`}
+          data-visible={timeline.visible}
+        >
+          {SCHEDULE.map((item, i) => (
             <li
               key={item.time}
               className={styles.item}
               data-milestone={item.milestone ? "true" : undefined}
+              style={{ "--i": i } as React.CSSProperties}
             >
               <time className={styles.time}>{item.time}</time>
               <div className={styles.text}>
