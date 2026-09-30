@@ -28,6 +28,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 2.5rem; /* never let the links touch the wordmark */
   max-width: var(--max);
   height: 100%;
   margin-inline: auto;
@@ -184,7 +185,8 @@
 
 /* ---------- Desktop ---------- */
 
-@media (min-width: 56rem) {
+/* 68rem: below this the links and the wordmark run into each other (keep in step with Navbar.tsx) */
+@media (min-width: 68rem) {
   .toggle {
     display: none;
   }

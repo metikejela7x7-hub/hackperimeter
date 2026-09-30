@@ -96,9 +96,26 @@
   color: var(--text-faint);
 }
 
+/* Medium: the pitch (with its wide wordmark) takes its own row; links and details sit side by side below. */
 @media (min-width: 48rem) {
   .top {
-    grid-template-columns: 1.6fr 1fr 1.2fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
     gap: 3rem;
+  }
+
+  .pitch {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Wide: three columns. The pitch column never gets narrower than the wordmark,
+   so it can't spill into the next column; the other two shrink and wrap instead. */
+@media (min-width: 72rem) {
+  .top {
+    grid-template-columns: minmax(min-content, 1.6fr) minmax(0, 1fr) minmax(0, 1.2fr);
+  }
+
+  .pitch {
+    grid-column: auto;
   }
 }
