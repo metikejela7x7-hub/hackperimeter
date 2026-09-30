@@ -44,11 +44,11 @@ function nightShapes(date: Date) {
   return { night, terminator };
 }
 
-const ATLANTA = HUBS[0];
+const PATIENT_ZERO = HUBS[0];
 /** Tilt of the north pole towards the viewer, degrees. */
 const TILT = 22;
 /**
- * Seconds per turn, and per outbreak: each cycle starts with Atlanta facing
+ * Seconds per turn, and per outbreak: each cycle starts with patient zero facing
  * us, the infection spreads east as the planet turns, then counts back down.
  */
 const CYCLE = 60;
@@ -83,7 +83,7 @@ interface Place {
 const PLACES: readonly Place[] = (() => {
   let previous = -CATCH_GAP;
   const hubAt = HUBS.map(([longitude]) => {
-    const eastOfStart = ((((longitude - ATLANTA[0] - CATCH_LEAD + 90) % 360) + 360) % 360) - 90;
+    const eastOfStart = ((((longitude - PATIENT_ZERO[0] - CATCH_LEAD + 90) % 360) + 360) % 360) - 90;
     previous = Math.max(previous + CATCH_GAP, eastOfStart / 360);
     return previous;
   });
@@ -130,7 +130,7 @@ const dot = (x: number, y: number, r: number) =>
 
 /**
  * Rotating Earth: minimalist coastlines, the real day/night line for this
- * moment, and an outbreak spreading from Atlanta.
+ * moment, and an outbreak spreading from Clarkston, GA.
  */
 export function Globe() {
   const landRef = useRef<SVGPathElement>(null);
@@ -156,8 +156,8 @@ export function Globe() {
 
     const draw = (seconds: number) => {
       const cycle = (seconds % CYCLE) / CYCLE;
-      // Turn eastward from Atlanta so newly infected regions roll into view.
-      const centreLon = ATLANTA[0] + cycle * 360;
+      // Turn eastward from patient zero so newly infected regions roll into view.
+      const centreLon = PATIENT_ZERO[0] + cycle * 360;
       const centre: [number, number] = [centreLon, TILT];
       projection.rotate([-centreLon, -TILT]);
 

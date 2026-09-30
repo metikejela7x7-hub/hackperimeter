@@ -6,10 +6,10 @@
 
 /**
  * Major cities, in the order they are infected:
- * Atlanta first, then outward and eastward as the planet turns them into view.
+ * Clarkston first, then outward and eastward as the planet turns them into view.
  */
 export const HUBS: readonly [number, number][] = [
-  [-84.4, 33.7], // Atlanta, GA: patient zero
+  [-84.24, 33.81], // Clarkston, GA: patient zero, and the event venue
   [-86.8, 33.5], [-80.8, 35.2], [-90.1, 30], [-77, 38.9], [-83, 42.3], [-87.6, 41.9],
   [-74, 40.7], [-80.2, 25.8], [-97.7, 30.3], [-71.1, 42.4], [-73.6, 45.5], [-79.4, 43.7],
   [-105, 39.7], [-99.1, 19.4], [-112.1, 33.4], [-122.4, 37.8], [-118.2, 34.1], [-122.3, 47.6],
