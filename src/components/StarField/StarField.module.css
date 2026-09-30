@@ -1,8 +1,9 @@
+/* Sized in px by StarField.tsx to the whole screen, and pinned to the top-left.
+   It is never stretched to the window, so resizing only shows more or less of it. */
 .canvas {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
   z-index: 0;
-  width: 100%;
-  height: 100%;
   pointer-events: none;
 }

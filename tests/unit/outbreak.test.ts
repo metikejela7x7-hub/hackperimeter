@@ -7,8 +7,8 @@ describe("outbreak data", () => {
     expect(HUBS.length + towns.length).toBe(OUTBREAK_TOTAL);
   });
 
-  it("starts in Atlanta", () => {
-    expect(HUBS[0]).toEqual([-84.4, 33.7]);
+  it("starts in Clarkston, GA, at the venue", () => {
+    expect(HUBS[0]).toEqual([-84.24, 33.81]);
   });
 
   it("ties every town to a real hub, on the globe", () => {

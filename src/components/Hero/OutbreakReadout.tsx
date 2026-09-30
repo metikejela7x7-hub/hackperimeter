@@ -27,7 +27,7 @@ export function OutbreakReadout() {
         </span>{" "}
         / {OUTBREAK_TOTAL} cities
       </span>
-      <span>Patient zero · Atlanta, GA</span>
+      <span>Patient zero · Clarkston, GA</span>
     </p>
   );
 }

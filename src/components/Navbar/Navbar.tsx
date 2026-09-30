@@ -5,7 +5,8 @@ import { APPLY_URL, NAV_LINKS } from "@/data/event";
 import { Button } from "@/components/Button/Button";
 import styles from "./Navbar.module.css";
 
-const DESKTOP_QUERY = "(min-width: 56rem)";
+// Full link bar only where it fits beside the wordmark; narrower windows get the menu button.
+const DESKTOP_QUERY = "(min-width: 68rem)"; // keep in step with Navbar.module.css
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
