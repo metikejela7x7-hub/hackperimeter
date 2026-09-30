@@ -150,6 +150,13 @@
   overflow: visible;
 }
 
+/* Same size and position as .graphic, but opaque and underneath it */
+.graphic.globeBacking {
+  z-index: -3;
+  opacity: 1;
+  fill: var(--bg);
+}
+
 .ring {
   transform-origin: 400px 400px;
   animation: spin 240s linear infinite;
