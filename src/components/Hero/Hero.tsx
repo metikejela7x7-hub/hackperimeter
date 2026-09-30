@@ -51,10 +51,11 @@ function OrbitGraphic() {
         <ellipse cx="400" cy="400" rx="230" ry="80" className={styles.orbitFaint} />
       </g>
 
-      {/* The moon is drawn first, so Earth always hides it as it passes */}
-      <Moon />
+      {/* The moon behind Earth on the far half of its orbit, in front on the near half */}
+      <Moon layer="back" />
       <circle cx="400" cy="400" r="112" fill="url(#planet)" className={styles.planet} />
       <Globe />
+      <Moon layer="front" />
 
       {/* Signal beacon on the ring */}
       <g transform="translate(655 145)">
@@ -69,6 +70,12 @@ function OrbitGraphic() {
 export function Hero() {
   return (
     <section id="top" className={styles.hero} aria-labelledby="hero-title">
+      {/* Solid discs behind the globe and the moon: the graphic is see-through,
+          so without these the background stars would show through them. */}
+      <svg className={`${styles.graphic} ${styles.globeBacking}`} viewBox="0 0 800 800" aria-hidden="true" focusable="false">
+        <circle cx="400" cy="400" r="113" />
+        <Moon layer="backing" />
+      </svg>
       <OrbitGraphic />
 
       <div className={styles.inner}>

@@ -22,10 +22,16 @@ function moonAt(seconds: number) {
 }
 
 /**
- * The moon on its orbit. Drawn behind the planet the whole way round, so it
- * slips behind Earth on both passes and never covers it.
+ * The moon on its orbit, like a real one: in front of Earth on the near
+ * (lower) half of the orbit, behind it on the far (upper) half. Rendered once
+ * behind the planet ("back") and once in front ("front"); each copy shows
+ * only on its half.
+ *
+ * "backing" draws just a solid disc on the same orbit, always shown: it sits
+ * under the see-through hero graphic so background stars don't show through
+ * the moon (see Hero.tsx).
  */
-export function Moon() {
+export function Moon({ layer }: { layer: "back" | "front" | "backing" }) {
   const ref = useRef<SVGGElement>(null);
 
   useEffect(() => {
@@ -33,14 +39,16 @@ export function Moon() {
     if (!el) return;
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let frame = 0;
-    el.style.display = ""; // never inherit a hidden state from an earlier render
 
     const draw = (seconds: number) => {
       const { x, y, near } = moonAt(seconds);
+      const shown = layer === "backing" || (layer === "front" ? near >= 0 : near < 0);
+      el.style.display = shown ? "" : "none";
+      if (!shown) return;
       // A touch bigger up close, smaller and dimmer on the far side.
       const scale = 1 + 0.16 * near;
       el.setAttribute("transform", `translate(${x.toFixed(2)} ${y.toFixed(2)}) scale(${scale.toFixed(3)})`);
-      el.style.opacity = String(0.8 + 0.2 * Math.max(0, near) + 0.12 * Math.min(0, near));
+      if (layer !== "backing") el.style.opacity = String(0.8 + 0.2 * Math.max(0, near) + 0.12 * Math.min(0, near));
     };
 
     const loop = (time: number) => {
@@ -71,7 +79,15 @@ export function Moon() {
       document.removeEventListener("visibilitychange", start);
       motion.removeEventListener("change", start);
     };
-  }, []);
+  }, [layer]);
+
+  if (layer === "backing") {
+    return (
+      <g ref={ref}>
+        <circle r="10.5" />
+      </g>
+    );
+  }
 
   return (
     <g ref={ref} className={styles.moon}>
