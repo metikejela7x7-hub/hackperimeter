@@ -106,6 +106,22 @@
   border-top: 1px solid var(--line);
 }
 
+/* Outbreak readout, in step with the globe's dots */
+.outbreak {
+  display: grid;
+  gap: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.outbreakCount {
+  color: var(--infect);
+  font-variant-numeric: tabular-nums;
+}
+
 .where {
   display: grid;
   gap: 0.25rem;
@@ -187,34 +203,95 @@
   stroke-width: 1;
 }
 
-.globe {
+/* Faint lat/long grid, then the continents: thin, see-through, drawn by Globe.tsx */
+.graticule {
   fill: none;
   stroke: var(--text);
-  stroke-width: 0.75;
-  opacity: 0.16;
+  stroke-width: 0.5;
+  opacity: 0.09;
 }
 
-.limb {
+.land {
+  fill: var(--text);
+  fill-opacity: 0.1;
+  stroke: var(--text);
+  stroke-width: 0.6;
+  stroke-opacity: 0.45;
+  stroke-linejoin: round;
+}
+
+/* Outbreak sites. Positioned and faded by Globe.tsx. */
+.siteDot,
+.siteOrigin {
+  fill: var(--infect);
+}
+
+/* Atlanta, patient zero: a brighter core */
+.siteOrigin {
+  stroke: #e4f7c8;
+  stroke-width: 0.6;
+}
+
+.sitePulse {
+  fill: none;
+  stroke: var(--infect);
+  stroke-width: 0.75;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: outbreak 2.8s var(--ease) infinite;
+}
+
+@keyframes outbreak {
+  from {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+
+/* Towns around each hub: small, and brighter for a moment when they catch it */
+.towns {
+  fill: var(--infect);
+  opacity: 0.75;
+}
+
+.townsFresh {
+  fill: #d8f5ae;
+  filter: drop-shadow(0 0 1.5px var(--infect));
+}
+
+/* Night side: a soft shadow. Its edge, the day/night line, in amber. */
+.night {
+  fill: #000;
+  opacity: 0.38;
+}
+
+.terminator {
   fill: none;
   stroke: var(--amber);
   stroke-width: 1.5;
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
-.craft {
-  fill: var(--amber);
-  offset-path: path("M 110 400 a 290 105 0 1 0 580 0 a 290 105 0 1 0 -580 0");
-  offset-rotate: 0deg;
-  animation: travel 26s linear infinite;
+/* The moon (see Moon.tsx) */
+.moon {
+  filter: drop-shadow(0 0 3px rgba(236, 232, 222, 0.18));
 }
 
-@keyframes travel {
-  from {
-    offset-distance: 0%;
-  }
-  to {
-    offset-distance: 100%;
-  }
+.mare {
+  fill: #5f5b53;
+  opacity: 0.42;
+}
+
+.crater {
+  fill: #4f4c46;
+  opacity: 0.55;
+  stroke: #d9d4c8;
+  stroke-width: 0.25;
+  stroke-opacity: 0.35;
 }
 
 @keyframes spin {

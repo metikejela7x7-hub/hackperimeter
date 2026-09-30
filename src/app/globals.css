@@ -9,6 +9,7 @@
   --line-strong: rgba(241, 237, 228, 0.24);
   --amber: #d99a2b;
   --amber-soft: rgba(217, 154, 43, 0.16);
+  --infect: #9fd356; /* the outbreak: used sparingly, only in decorative art */
   --error: #ff8a7a; /* form errors; 7:1 on --bg-deep */
 
   --font-display: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;

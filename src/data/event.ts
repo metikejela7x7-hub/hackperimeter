@@ -92,10 +92,40 @@ export const SCHEDULE: readonly ScheduleItem[] = [
   },
 ];
 
-export const PARTNERS = [
-  { name: "The Zoku App", role: "Partner" },
-  { name: "Duwun", role: "Partner" },
-] as const;
+export interface Partner {
+  name: string;
+  role: string;
+  /**
+   * Logo in /public/partners (e.g. "/partners/ibm-z.svg"), in its real colours.
+   * Use the brand's version for dark backgrounds. Leave unset to show the name.
+   */
+  logo?: string;
+  /**
+   * Optional second layer drawn over the logo that tilts up on hover, with
+   * its pivot point (CSS transform-origin). Same canvas size as `logo`.
+   */
+  accent?: { src: string; pivot: string };
+  /** A branded ribbon drawn under the logo, in the partner's campaign colours. */
+  ribbon?: "ibm-waves";
+  /** A text wordmark set in the partner's own typeface, instead of an image. */
+  wordmark?: "zoku";
+  /** Show the name under the logo, for icon-only logos without lettering. */
+  showName?: boolean;
+  url?: string;
+}
+
+export const PARTNERS: readonly Partner[] = [
+  { name: "IBM Z", role: "Partner", logo: "/partners/ibm-z.png", ribbon: "ibm-waves" },
+  {
+    name: "Accenture",
+    role: "Partner",
+    logo: "/partners/accenture-word.png",
+    // The ">" lives in its own layer so it can tilt up on hover.
+    accent: { src: "/partners/accenture-mark.png", pivot: "58% 41%" },
+  },
+  { name: "The Zoku App", role: "Partner", wordmark: "zoku" },
+  { name: "Duwun", role: "Partner", logo: "/partners/duwun.png", showName: true },
+];
 
 export interface FaqItem {
   id: string;
@@ -138,6 +168,6 @@ export const FAQ: readonly FaqItem[] = [
     id: "partners",
     question: "Who is backing the event?",
     answer:
-      "The Zoku App and Duwun are partners of HackPerimeter. More partners are joining soon.",
+      "IBM Z, Accenture, The Zoku App and Duwun are partners of HackPerimeter. More partners are joining soon.",
   },
 ];

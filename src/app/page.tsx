@@ -7,6 +7,7 @@ import { Schedule } from "@/components/Schedule/Schedule";
 import { Partners } from "@/components/Partners/Partners";
 import { Faq } from "@/components/Faq/Faq";
 import { Footer } from "@/components/Footer/Footer";
+import { Quarantine } from "@/components/Quarantine/Quarantine";
 import styles from "./page.module.css";
 
 export default function HomePage() {
@@ -17,12 +18,14 @@ export default function HomePage() {
         <Navbar />
         <main id="main">
           <Hero />
+          <div className={styles.hazard} aria-hidden="true" />
           <EventFacts />
           <About />
           <Schedule />
           <Partners />
           <Faq />
         </main>
+        <Quarantine />
         <Footer />
       </div>
     </>
