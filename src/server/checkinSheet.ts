@@ -45,7 +45,7 @@ export async function buildCheckinWorkbook(applications: ApplicationRecord[]): P
       name: application.fullName,
       email: application.email,
       school: application.school,
-      team: application.teamMode === "team" ? (application.teamName ?? "Team (no name)") : "Solo",
+      team: application.teamMode === "team" ? (application.teamName ?? "Team (no name)") : "Looking for a team",
       experience: labelFor(EXPERIENCE_LEVELS, application.experience),
       needs: application.needs ?? "",
       idChecked: false,

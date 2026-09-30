@@ -87,7 +87,7 @@ export function recapEmbed(stats: ApplicationStats, now = new Date()): DiscordEm
       { name: "Experience", value: list(stats.byExperience), inline: true },
       {
         name: "Teams",
-        value: `Team: **${stats.team}**\nSolo: **${stats.solo}**\nWith resume: **${stats.withResume}**`,
+        value: `Team: **${stats.team}**\nLooking for a team: **${stats.solo}**\nWith resume: **${stats.withResume}**`,
         inline: true,
       },
       { name: "Top schools", value: list(stats.topSchools) },

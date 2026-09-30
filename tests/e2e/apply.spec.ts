@@ -20,7 +20,7 @@ async function fillApplication(page: Page, { withResume = false } = {}) {
   }
   await page.getByRole("button", { name: "Continue" }).click();
 
-  await page.getByRole("radio", { name: /^Applying solo/ }).check();
+  await page.getByRole("radio", { name: /^Looking for a team/ }).check();
   await page.getByRole("button", { name: "Continue" }).click();
 
   await page.getByRole("checkbox", { name: /I confirm the information above/ }).check();
