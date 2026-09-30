@@ -1,9 +1,12 @@
 import { APPLY_URL, EVENT } from "@/data/event";
 import { Button } from "@/components/Button/Button";
 import { Countdown } from "@/components/Countdown/Countdown";
+import { Globe } from "./Globe";
+import { Moon } from "./Moon";
+import { OutbreakReadout } from "./OutbreakReadout";
 import styles from "./Hero.module.css";
 
-/** Decorative perimeter ring, wireframe Earth, orbits and a pulsing signal. */
+/** Decorative perimeter ring, rotating Earth mid-outbreak, its moon, orbits and a pulsing signal. */
 function OrbitGraphic() {
   return (
     <svg
@@ -16,6 +19,16 @@ function OrbitGraphic() {
         <radialGradient id="planet" cx="35%" cy="30%" r="80%">
           <stop offset="0%" stopColor="#24262a" />
           <stop offset="100%" stopColor="#0c0d0e" />
+        </radialGradient>
+        {/* Moon: sunlit from the upper left, falling into shadow on the far side */}
+        <radialGradient id="moon-surface" cx="36%" cy="32%" r="75%">
+          <stop offset="0%" stopColor="#ece8de" />
+          <stop offset="55%" stopColor="#b3aea4" />
+          <stop offset="100%" stopColor="#5d5a54" />
+        </radialGradient>
+        <radialGradient id="moon-shadow" cx="28%" cy="24%" r="95%">
+          <stop offset="55%" stopColor="#0c0d0e" stopOpacity="0" />
+          <stop offset="100%" stopColor="#0c0d0e" stopOpacity="0.85" />
         </radialGradient>
       </defs>
 
@@ -38,25 +51,10 @@ function OrbitGraphic() {
         <ellipse cx="400" cy="400" rx="230" ry="80" className={styles.orbitFaint} />
       </g>
 
-      {/* Wireframe Earth: the thing being left behind */}
+      {/* The moon is drawn first, so Earth always hides it as it passes */}
+      <Moon />
       <circle cx="400" cy="400" r="112" fill="url(#planet)" className={styles.planet} />
-      <g className={styles.globe}>
-        <ellipse cx="400" cy="400" rx="112" ry="38" />
-        <ellipse cx="400" cy="400" rx="112" ry="76" />
-        <ellipse cx="400" cy="400" rx="38" ry="112" />
-        <ellipse cx="400" cy="400" rx="76" ry="112" />
-        <line x1="400" y1="288" x2="400" y2="512" />
-        <line x1="288" y1="400" x2="512" y2="400" />
-      </g>
-      <path
-        className={styles.limb}
-        d="M 322 322 A 112 112 0 0 1 478 322"
-      />
-
-      {/* Craft leaving on the outer orbit */}
-      <g transform="rotate(-24 400 400)">
-        <circle className={styles.craft} r="5" />
-      </g>
+      <Globe />
 
       {/* Signal beacon on the ring */}
       <g transform="translate(655 145)">
@@ -100,6 +98,7 @@ export function Hero() {
 
         <div className={styles.bottom}>
           <Countdown />
+          <OutbreakReadout />
           <p className={styles.where}>
             <span>{EVENT.dateLabel}</span>
             <span>

@@ -1,0 +1,175 @@
+/* A dark band above the footer: taped off, watched, and reached through. */
+.zone {
+  --rise: 0;
+  --silhouette: #050606;
+
+  position: relative;
+  height: clamp(14rem, 24vw, 18rem);
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(to bottom, var(--bg) 0%, #070808 45%, #050606 100%);
+}
+
+/* ---------- Quarantine tape ---------- */
+
+.tape {
+  position: absolute;
+  z-index: 3;
+  top: 1.1rem;
+  left: -5%;
+  right: -5%;
+  height: 1.7rem;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: var(--amber);
+  color: #121315;
+  transform: rotate(-1.4deg);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+/* diagonal hazard stripes at the tape's edges */
+.tape::before,
+.tape::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 0.28rem;
+  background: repeating-linear-gradient(-45deg, #121315 0 0.4rem, transparent 0.4rem 0.8rem);
+  opacity: 0.85;
+}
+
+.tape::after {
+  inset: auto 0 0;
+}
+
+.tapeTrack {
+  display: flex;
+  width: max-content;
+  animation: tape 60s linear infinite;
+}
+
+.tapeText {
+  flex: none;
+  padding-right: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  white-space: pre;
+}
+
+@keyframes tape {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------- Eyes in the dark ---------- */
+
+.eyes {
+  --look-x: 0px;
+  --look-y: 0px;
+
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  gap: calc(0.5rem * var(--size));
+  opacity: 0;
+  transform: translate(var(--look-x), var(--look-y));
+  transition:
+    opacity 1.6s ease var(--wake),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.zone[data-awake="true"] .eyes {
+  opacity: calc(0.45 + var(--size) * 0.4);
+}
+
+.eye {
+  width: calc(0.42rem * var(--size));
+  height: calc(0.2rem * var(--size));
+  border-radius: 60% 60% 45% 45% / 70% 70% 40% 40%;
+  background: radial-gradient(ellipse at 50% 60%, #e9ffc4 0%, var(--infect) 45%, #3f6b17 100%);
+  box-shadow:
+    0 0 calc(0.35rem * var(--size)) rgba(159, 211, 86, 0.75),
+    0 0 calc(1.2rem * var(--size)) rgba(159, 211, 86, 0.25);
+  transform-origin: 50% 60%;
+  animation: blink var(--blink) ease-in-out var(--blink-offset) infinite;
+}
+
+/* the second eye is slightly lower: a head tilted, not a pair of lights */
+.eye + .eye {
+  transform: translateY(calc(0.06rem * var(--size)));
+}
+
+@keyframes blink {
+  0%,
+  94%,
+  100% {
+    scale: 1 1;
+  }
+  96.5% {
+    scale: 1 0.05;
+  }
+}
+
+/* ---------- Hands reaching up ---------- */
+
+.fog {
+  position: absolute;
+  z-index: 1;
+  inset: auto 0 0;
+  height: 55%;
+  background:
+    radial-gradient(60% 100% at 30% 100%, rgba(159, 211, 86, 0.08), transparent 70%),
+    radial-gradient(50% 90% at 78% 100%, rgba(159, 211, 86, 0.06), transparent 70%);
+  pointer-events: none;
+}
+
+.handSpot {
+  position: absolute;
+  z-index: 2;
+  bottom: -0.2rem;
+  line-height: 0;
+  /* hidden below the edge until the page end comes into view */
+  transform: translateY(calc((1 - var(--rise) * var(--reach)) * 100%));
+  transition: transform 0.25s linear;
+}
+
+.hand {
+  display: block;
+  width: calc(3rem * var(--scale));
+  height: calc(7rem * var(--scale));
+  fill: var(--silhouette);
+  filter: drop-shadow(0 -1px 0 rgba(159, 211, 86, 0.18));
+  transform: scaleX(var(--flip)) rotate(var(--tilt));
+  transform-origin: 50% 100%;
+  animation: grasp var(--sway) ease-in-out infinite alternate;
+}
+
+@keyframes grasp {
+  from {
+    rotate: -3deg;
+  }
+  to {
+    rotate: 4deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tapeTrack,
+  .eye,
+  .hand {
+    animation: none;
+  }
+
+  .eyes {
+    transition: none;
+  }
+
+  .handSpot {
+    transition: none;
+  }
+}
