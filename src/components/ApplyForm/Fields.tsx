@@ -337,6 +337,71 @@ export function CheckboxField({
   );
 }
 
+function formatBytes(bytes: number): string {
+  return bytes < 1024 * 1024
+    ? `${Math.max(1, Math.round(bytes / 1024))} KB`
+    : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+/**
+ * Pick one file. A file input can't be given a value, so once something is
+ * chosen it shows as a summary with Remove (which also survives step changes).
+ */
+export function FileField({
+  name,
+  label,
+  optional,
+  hint,
+  error,
+  accept,
+  value,
+  onChange,
+}: BaseFieldProps & {
+  accept: string;
+  value: File | null;
+  onChange: (file: File | null) => void;
+}) {
+  return (
+    <div className={styles.field}>
+      <label className={styles.label} htmlFor={fieldId(name)}>
+        {label}
+        {optional && <OptionalTag />}
+      </label>
+      <Hint name={name} text={hint} />
+      {value ? (
+        <div className={styles.file} data-invalid={error ? "true" : undefined}>
+          <span className={styles.fileName}>{value.name}</span>
+          <span className={styles.fileSize}>{formatBytes(value.size)}</span>
+          <button
+            type="button"
+            id={fieldId(name)}
+            name={name}
+            className={styles.fileRemove}
+            aria-label={`Remove ${value.name}`}
+            aria-describedby={describedBy(name, hint, error)}
+            onClick={() => onChange(null)}
+          >
+            Remove
+          </button>
+        </div>
+      ) : (
+        <input
+          type="file"
+          id={fieldId(name)}
+          name={name}
+          accept={accept}
+          className={`${styles.control} ${styles.fileInput}`}
+          required={!optional}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={describedBy(name, hint, error)}
+          onChange={(event) => onChange(event.target.files?.[0] ?? null)}
+        />
+      )}
+      <FieldError name={name} message={error} />
+    </div>
+  );
+}
+
 /** Vertical rhythm between the fields of a step. */
 export function FieldStack({ children }: { children: ReactNode }) {
   return <div className={styles.stack}>{children}</div>;

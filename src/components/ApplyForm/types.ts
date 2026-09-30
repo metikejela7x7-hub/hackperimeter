@@ -17,6 +17,8 @@ export interface ApplicationData {
   experience: string;
   interests: string[];
   portfolioUrl: string;
+  /** Optional PDF, uploaded separately just before the application is sent. */
+  resume: File | null;
   // Step 3: Team
   teamMode: "" | "solo" | "team";
   teamName: string;
@@ -35,6 +37,7 @@ export const EMPTY_APPLICATION: ApplicationData = {
   experience: "",
   interests: [],
   portfolioUrl: "",
+  resume: null,
   teamMode: "",
   teamName: "",
   teammates: Array.from({ length: MAX_TEAMMATES }, () => ({ name: "", email: "" })),
@@ -59,6 +62,11 @@ export interface ApplicationPayload {
   agreed: true;
 }
 
+/** What POST /api/applications receives: the payload plus the uploaded resume's id. */
+export interface ApplicationRequest extends ApplicationPayload {
+  resumeId?: string;
+}
+
 export type TeammateIndex = 0 | 1 | 2;
 
 /** Every validated control. Also the control's `name` attribute, used to focus it. */
@@ -71,6 +79,7 @@ export type FieldName =
   | "experience"
   | "interests"
   | "portfolioUrl"
+  | "resume"
   | "teamMode"
   | "teamName"
   | `teammate${TeammateIndex}Name`

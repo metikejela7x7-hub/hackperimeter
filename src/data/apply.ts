@@ -65,6 +65,24 @@ export const TEAM_MODES: readonly ChoiceOption[] = [
 /** Teammates you can list besides yourself (teams are 2–4 people). */
 export const MAX_TEAMMATES = 3;
 
+/** Review decisions an admin can make on an application. */
+export const APPLICATION_STATUSES = [
+  { value: "pending", label: "Pending" },
+  { value: "accepted", label: "Accepted" },
+  { value: "waitlisted", label: "Waitlisted" },
+  { value: "rejected", label: "Rejected" },
+] as const satisfies readonly ChoiceOption[];
+
+export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number]["value"];
+
+export function isApplicationStatus(value: unknown): value is ApplicationStatus {
+  return APPLICATION_STATUSES.some((status) => status.value === value);
+}
+
+/** Resumes are optional PDFs up to this size (the upload API enforces it too). */
+export const RESUME_MAX_BYTES = 4 * 1024 * 1024;
+export const RESUME_MAX_LABEL = "4 MB";
+
 export const AGREEMENT_TEXT =
   "I confirm the information above is accurate and I agree to follow the HackPerimeter event rules.";
 

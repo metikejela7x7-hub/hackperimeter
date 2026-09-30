@@ -1,4 +1,10 @@
-import { EXPERIENCE_LEVELS, GRADUATION_YEARS, INTERESTS } from "@/data/apply";
+import {
+  EXPERIENCE_LEVELS,
+  GRADUATION_YEARS,
+  INTERESTS,
+  RESUME_MAX_BYTES,
+  RESUME_MAX_LABEL,
+} from "@/data/apply";
 import type {
   ApplicationData,
   FieldName,
@@ -16,7 +22,7 @@ export const teammateEmailField = (index: TeammateIndex) =>
 /** Fields on each step, in on-screen order (the first invalid one gets focus). */
 export const FIELDS_BY_STEP: readonly (readonly FieldName[])[] = [
   ["fullName", "email", "school", "graduationYear"],
-  ["major", "experience", "interests", "portfolioUrl"],
+  ["major", "experience", "interests", "portfolioUrl", "resume"],
   [
     "teamMode",
     "teamName",
@@ -27,7 +33,7 @@ export const FIELDS_BY_STEP: readonly (readonly FieldName[])[] = [
 
 export const TEAM_FIELDS = FIELDS_BY_STEP[2];
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export const LIMITS = {
   name: 100,
@@ -81,6 +87,15 @@ export function validate(data: ApplicationData): FormErrors {
 
   if (data.portfolioUrl.trim() && !normalizeWebUrl(data.portfolioUrl))
     errors.portfolioUrl = "Enter a valid link, like github.com/yourname.";
+
+  if (data.resume) {
+    const { name, type, size } = data.resume;
+    if (type !== "application/pdf" && !/\.pdf$/i.test(name))
+      errors.resume = "Upload your resume as a PDF.";
+    else if (size === 0) errors.resume = "That file is empty. Choose another PDF.";
+    else if (size > RESUME_MAX_BYTES)
+      errors.resume = `Your resume must be ${RESUME_MAX_LABEL} or smaller.`;
+  }
 
   // Step 3: Team
   if (!data.teamMode) errors.teamMode = "Choose whether you're applying solo or with a team.";
