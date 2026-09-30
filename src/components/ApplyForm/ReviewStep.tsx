@@ -85,6 +85,7 @@ export function ReviewStep({ data, errors, onChange, onEdit }: ReviewStepProps) 
             {data.interests.map((value) => labelFor(INTERESTS, value)).join(", ")}
           </Row>
           <Row term="Link">{data.portfolioUrl.trim() || <Empty />}</Row>
+          <Row term="Resume">{data.resume?.name || <Empty />}</Row>
         </Block>
 
         <Block title="Team" step={2} onEdit={onEdit}>

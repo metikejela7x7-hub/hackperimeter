@@ -1,5 +1,5 @@
-import { EXPERIENCE_LEVELS, INTERESTS } from "@/data/apply";
-import { ChipGroup, FieldStack, RadioGroup, TextField } from "./Fields";
+import { EXPERIENCE_LEVELS, INTERESTS, RESUME_MAX_LABEL } from "@/data/apply";
+import { ChipGroup, FieldStack, FileField, RadioGroup, TextField } from "./Fields";
 import { LIMITS } from "./validation";
 import type { StepProps } from "./types";
 
@@ -47,6 +47,16 @@ export function ProfileStep({ data, errors, onChange, onBlur }: StepProps) {
         error={errors.portfolioUrl}
         onChange={(event) => onChange({ portfolioUrl: event.target.value }, ["portfolioUrl"])}
         onBlur={(event) => onBlur("portfolioUrl", event.target.value)}
+      />
+      <FileField
+        name="resume"
+        label="Resume"
+        optional
+        hint={`PDF, up to ${RESUME_MAX_LABEL}.`}
+        accept="application/pdf,.pdf"
+        value={data.resume}
+        error={errors.resume}
+        onChange={(resume) => onChange({ resume }, ["resume"])}
       />
     </FieldStack>
   );

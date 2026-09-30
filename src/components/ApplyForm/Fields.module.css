@@ -133,6 +133,73 @@
   cursor: pointer;
 }
 
+/* ---------- File picker ---------- */
+
+.fileInput {
+  padding: 0.55rem 0.6rem;
+  cursor: pointer;
+}
+
+.fileInput::file-selector-button {
+  margin-right: 0.9rem;
+  padding: 0.45rem 0.9rem;
+  background: transparent;
+  color: var(--amber);
+  border: 1px solid var(--amber);
+  border-radius: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.file {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.85rem;
+  min-height: 3rem;
+  padding: 0.6rem 0.9rem;
+  background: var(--amber-soft);
+  border: 1px solid var(--amber);
+}
+
+.file[data-invalid="true"] {
+  border-color: var(--error);
+}
+
+.fileName {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
+
+.fileSize {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.fileRemove {
+  margin-left: auto;
+  padding: 0.35rem 0.1rem;
+  background: none;
+  border: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  cursor: pointer;
+}
+
+.fileRemove:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
+
 /* ---------- Choice inputs (radio cards, chips, agreement) ----------
    The real input is invisible but covers its label, so the whole tile is the
    click/tap target and keyboard + screen-reader behaviour stay native. */

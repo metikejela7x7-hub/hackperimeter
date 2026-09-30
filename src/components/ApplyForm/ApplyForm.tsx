@@ -8,7 +8,7 @@ import { ProfileStep } from "./ProfileStep";
 import { ReviewStep } from "./ReviewStep";
 import { Stepper } from "./Stepper";
 import { TeamStep } from "./TeamStep";
-import { buildPayload, submitApplication } from "./submitApplication";
+import { SubmitError, buildPayload, submitApplication } from "./submitApplication";
 import { EMPTY_APPLICATION } from "./types";
 import type { ApplicationData, FieldName, FormErrors, StepProps } from "./types";
 import { FIELDS_BY_STEP, firstInvalidField, validate, validateStep } from "./validation";
@@ -119,13 +119,22 @@ export function ApplyForm() {
     setSubmitError("");
     setStatus("submitting");
     try {
-      await submitApplication(buildPayload(data));
+      await submitApplication(buildPayload(data), data.resume);
       setStatus("submitted");
-    } catch {
+    } catch (error) {
       setStatus("editing");
-      setSubmitError(
-        "We couldn't send your application. Check your connection and try again.",
-      );
+      if (error instanceof SubmitError) {
+        setSubmitError(error.message);
+        // The server flagged specific answers: show them, and open the first step with one.
+        const fields = error.fields ?? {};
+        const badStep = FIELDS_BY_STEP.findIndex((step) => step.some((field) => fields[field]));
+        if (badStep !== -1) {
+          setErrors((current) => ({ ...current, ...fields }));
+          if (badStep !== LAST_STEP) goTo(badStep, true);
+        }
+      } else {
+        setSubmitError("We couldn't send your application. Check your connection and try again.");
+      }
     }
   };
 

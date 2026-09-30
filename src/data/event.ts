@@ -25,13 +25,8 @@ export const EVENT = {
   endsAt: Date.UTC(2026, 10, 7, 1, 0, 0), // 8:00 PM EST
 } as const;
 
-/**
- * GitHub Pages hosts this project under /hackperimeter; other hosts use /.
- * The build workflow supplies NEXT_PUBLIC_BASE_PATH only for GitHub Pages.
- */
-const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-export const HOME_URL = BASE_PATH ? `${BASE_PATH}/` : "/";
-export const APPLY_URL = `${BASE_PATH}/apply/`;
+export const HOME_URL = "/";
+export const APPLY_URL = "/apply";
 
 export const NAV_LINKS = [
   { href: "#facts", label: "Facts" },
