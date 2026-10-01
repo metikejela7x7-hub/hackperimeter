@@ -67,7 +67,7 @@ export function validate(data: ApplicationData): FormErrors {
   else if (fullName.length < 2) errors.fullName = "Full name needs at least 2 characters.";
 
   const email = data.email.trim();
-  if (!email) errors.email = "Enter your email address.";
+  if (!email) errors.email = "Enter your personal email address.";
   else if (!EMAIL_PATTERN.test(email))
     errors.email = "Enter a valid email address, like name@example.com.";
 

@@ -6,7 +6,7 @@ async function fillApplication(page: Page, { withResume = false } = {}) {
   await page.goto("/apply");
 
   await page.getByLabel("Full name").fill("Ada Lovelace");
-  await page.getByLabel("Email").fill("ada@example.com");
+  await page.getByLabel("Personal email").fill("ada@example.com");
   await page.getByLabel("School").fill("Perimeter College");
   await page.getByLabel("Graduation year").selectOption("2027");
   await page.getByRole("button", { name: "Continue" }).click();
@@ -69,7 +69,7 @@ test("shows the server's message when the email already applied", async ({ page 
 test("rejects a non-PDF resume before upload", async ({ page }) => {
   await page.goto("/apply");
   await page.getByLabel("Full name").fill("Ada Lovelace");
-  await page.getByLabel("Email").fill("ada@example.com");
+  await page.getByLabel("Personal email").fill("ada@example.com");
   await page.getByLabel("School").fill("Perimeter College");
   await page.getByLabel("Graduation year").selectOption("2027");
   await page.getByRole("button", { name: "Continue" }).click();

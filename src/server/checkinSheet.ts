@@ -1,6 +1,7 @@
 import ExcelJS from "exceljs";
 import { EXPERIENCE_LEVELS, labelFor } from "@/data/apply";
 import { EVENT } from "@/data/event";
+import { groupTeams } from "@/components/Admin/teams";
 import type { ApplicationRecord } from "./applications";
 
 /** Empty rows left at the bottom for walk-ins, formatted like the rest. */
@@ -37,15 +38,26 @@ export async function buildCheckinWorkbook(applications: ApplicationRecord[]): P
   });
   sheet.columns = CHECKIN_COLUMNS.map((column) => ({ ...column }));
 
-  const sorted = [...applications].sort((a, b) =>
-    a.fullName.localeCompare(b.fullName, "en", { sensitivity: "base" }),
-  );
-  for (const application of sorted) {
+  // Teammates sit together so a whole team can be checked in at once: named
+  // teams A–Z, then unnamed ones, then everyone looking for a team.
+  const byName = (a: ApplicationRecord, b: ApplicationRecord) =>
+    a.fullName.localeCompare(b.fullName, "en", { sensitivity: "base" });
+  const { teams, lookingForTeam } = groupTeams(applications);
+  const rows = [
+    ...teams.flatMap((team) =>
+      team.members
+        .map((m) => m.application)
+        .sort(byName)
+        .map((application) => ({ application, team: team.name ?? "Team (no name)" })),
+    ),
+    ...[...lookingForTeam].sort(byName).map((application) => ({ application, team: "Looking for a team" })),
+  ];
+  for (const { application, team } of rows) {
     sheet.addRow({
       name: application.fullName,
       email: application.email,
       school: application.school,
-      team: application.teamMode === "team" ? (application.teamName ?? "Team (no name)") : "Looking for a team",
+      team,
       experience: labelFor(EXPERIENCE_LEVELS, application.experience),
       needs: application.needs ?? "",
       idChecked: false,
@@ -89,6 +101,7 @@ export async function buildCheckinWorkbook(applications: ApplicationRecord[]): P
     "  • Excel: select G2 down to the last row of H, then Insert → Checkbox.",
     "  • Google Sheets: File → Import this file, select the same cells, then Insert → Checkbox.",
     "",
+    "Teammates are listed together (teams A–Z, then people looking for a team).",
     "At the door: find the person (Ctrl/Cmd+F), check their photo ID, and confirm they joined the Discord.",
     "Tick both boxes and the row turns green. Walk-ins go in the empty rows at the bottom.",
     "",
