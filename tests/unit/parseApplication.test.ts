@@ -79,6 +79,16 @@ describe("parseApplication", () => {
     });
   });
 
+  it("requires a team name and at least one teammate for teams", () => {
+    const result = parseApplication(validBody({ teamMode: "team", teamName: " ", teammates: [] }));
+    expect(!result.ok && result.fields).toMatchObject({
+      teamName: expect.any(String),
+      teammate0Name: expect.any(String),
+      teammate0Email: expect.any(String),
+    });
+    expect(!result.ok && result.fields).not.toHaveProperty("teammate1Name");
+  });
+
   it("rejects a teammate who is the applicant", () => {
     const result = parseApplication(
       validBody({ teamMode: "team", teammates: [{ name: "Me", email: "ADA@example.com" }] }),

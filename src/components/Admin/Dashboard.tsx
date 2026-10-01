@@ -10,13 +10,14 @@ import {
   type ApplicationStatus,
 } from "@/data/apply";
 import type { ApplicationRecord } from "@/server/applications";
-import type { ApplicationStats, Count } from "@/server/stats";
+import { computeStats, type Count } from "@/server/stats";
 import styles from "./Admin.module.css";
+import type { TeamEdit } from "./teamEdits";
+import { TeamsView } from "./TeamsView";
 
 interface DashboardProps {
   adminEmail: string;
   applications: ApplicationRecord[];
-  stats: ApplicationStats;
 }
 
 const submittedFormat = new Intl.DateTimeFormat("en-US", {
@@ -62,7 +63,15 @@ function Breakdown({ title, counts }: { title: string; counts: Count[] }) {
   );
 }
 
-function Details({ application }: { application: ApplicationRecord }) {
+function Details({
+  application,
+  deleting,
+  onDelete,
+}: {
+  application: ApplicationRecord;
+  deleting: boolean;
+  onDelete: () => void;
+}) {
   const mates = application.teammates.filter((mate) => mate.name || mate.email);
   return (
     <dl className={styles.details}>
@@ -104,15 +113,28 @@ function Details({ application }: { application: ApplicationRecord }) {
         <dt>Needs</dt>
         <dd>{application.needs ?? "—"}</dd>
       </div>
+      <div className={styles.dangerZone}>
+        <button
+          type="button"
+          className={styles.deleteButton}
+          disabled={deleting}
+          onClick={onDelete}
+        >
+          {deleting ? "Deleting…" : "Delete application"}
+        </button>
+      </div>
     </dl>
   );
 }
 
-export function Dashboard({ adminEmail, applications: initial, stats }: DashboardProps) {
+export function Dashboard({ adminEmail, applications: initial }: DashboardProps) {
   const [applications, setApplications] = useState(initial);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | ApplicationStatus>("all");
   const [saving, setSaving] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [teamBusy, setTeamBusy] = useState(false);
+  const [tab, setTab] = useState<"applications" | "teams">("applications");
   const [message, setMessage] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
 
   const visible = useMemo(() => {
@@ -127,11 +149,9 @@ export function Dashboard({ adminEmail, applications: initial, stats }: Dashboar
     );
   }, [applications, query, statusFilter]);
 
-  const statusCounts = useMemo(() => {
-    const counts = Object.fromEntries(APPLICATION_STATUSES.map(({ value }) => [value, 0]));
-    for (const a of applications) counts[a.status] += 1;
-    return counts as Record<ApplicationStatus, number>;
-  }, [applications]);
+  // Recomputed from the list in hand, so every counter stays right after a delete or status change.
+  const stats = useMemo(() => computeStats(applications), [applications]);
+  const statusCounts = stats.byStatus;
 
   const changeStatus = async (application: ApplicationRecord, status: ApplicationStatus) => {
     const previous = application.status;
@@ -176,6 +196,70 @@ export function Dashboard({ adminEmail, applications: initial, stats }: Dashboar
     }
   };
 
+  const deleteOne = async (application: ApplicationRecord) => {
+    if (
+      !window.confirm(
+        `Delete ${application.fullName}'s application? This permanently removes it${
+          application.hasResume ? " and their resume" : ""
+        }. It can't be undone.`,
+      )
+    ) {
+      return;
+    }
+    setDeleting(application.id);
+    setMessage(null);
+    try {
+      const response = await fetch(`/api/admin/applications/${application.id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok && response.status !== 404) {
+        const body = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(body?.error ?? "Couldn't delete that application.");
+      }
+      setApplications((list) => list.filter((a) => a.id !== application.id));
+      setMessage({ tone: "ok", text: `Deleted ${application.fullName}'s application.` });
+    } catch (error) {
+      setMessage({
+        tone: "error",
+        text: error instanceof Error ? error.message : "Couldn't delete that application.",
+      });
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  /** Sends an organizer's team edit; returns true when it saved. */
+  const editTeam = async (application: ApplicationRecord, edit: TeamEdit, done: string) => {
+    setTeamBusy(true);
+    setMessage(null);
+    try {
+      const response = await fetch(`/api/admin/applications/${application.id}/team`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(edit),
+      });
+      const body = (await response.json().catch(() => null)) as {
+        error?: string;
+        applications?: ApplicationRecord[];
+      } | null;
+      if (!response.ok || !body?.applications) {
+        throw new Error(body?.error ?? "Couldn't save that team change.");
+      }
+      const changed = new Map(body.applications.map((a) => [a.id, a]));
+      setApplications((list) => list.map((a) => changed.get(a.id) ?? a));
+      setMessage({ tone: "ok", text: done });
+      return true;
+    } catch (error) {
+      setMessage({
+        tone: "error",
+        text: error instanceof Error ? error.message : "Couldn't save that team change.",
+      });
+      return false;
+    } finally {
+      setTeamBusy(false);
+    }
+  };
+
   return (
     <main id="main" className={styles.dashboard}>
       <header className={styles.top}>
@@ -193,132 +277,181 @@ export function Dashboard({ adminEmail, applications: initial, stats }: Dashboar
         </div>
       </header>
 
-      <dl className={styles.stats}>
-        <Stat label="Total" value={applications.length} />
-        <Stat label="Last 24 hours" value={stats.last24h} />
-        {APPLICATION_STATUSES.map(({ value, label }) => (
-          <Stat key={value} label={label} value={statusCounts[value]} />
+      <div className={styles.tabs} role="tablist" aria-label="Dashboard views">
+        {(
+          [
+            ["applications", `Applications (${applications.length})`],
+            ["teams", "Teams"],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            role="tab"
+            id={`tab-${value}`}
+            aria-selected={tab === value}
+            aria-controls={`panel-${value}`}
+            className={styles.tab}
+            onClick={() => setTab(value)}
+          >
+            {label}
+          </button>
         ))}
-        <Stat label="With resume" value={stats.withResume} />
-      </dl>
-
-      <div className={styles.panels}>
-        <Breakdown title="Experience" counts={stats.byExperience} />
-        <Breakdown title="Top schools" counts={stats.topSchools} />
-        <Breakdown
-          title="Teams"
-          counts={[
-            { label: "Team", count: stats.team },
-            { label: "Looking for a team", count: stats.solo },
-          ]}
-        />
       </div>
 
-      <section className={styles.panel} aria-labelledby="checkin-title">
-        <h2 id="checkin-title" className={styles.panelTitle}>
-          Check-in sheet
-        </h2>
-        <p className={styles.muted}>
-          Excel file with ID-checked and joined-Discord boxes. A row turns green once both are
-          ticked. Setup steps are on the file&rsquo;s &ldquo;How to use&rdquo; tab.
-        </p>
-        <div className={styles.downloads}>
-          <a className={styles.download} href="/api/admin/checkin-sheet?status=accepted">
-            Download accepted ({statusCounts.accepted})
-          </a>
-          <a className={styles.download} href="/api/admin/checkin-sheet?status=all">
-            Download everyone ({applications.length})
-          </a>
-        </div>
-      </section>
-
-      <section aria-labelledby="list-title">
-        <div className={styles.toolbar}>
-          <h2 id="list-title" className={styles.panelTitle}>
-            All applications
-          </h2>
-          <input
-            type="search"
-            className={styles.input}
-            placeholder="Search name, email, school, team"
-            aria-label="Search applications"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-          <select
-            className={styles.input}
-            aria-label="Filter by status"
-            value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value as typeof statusFilter)}
-          >
-            <option value="all">All statuses</option>
-            {APPLICATION_STATUSES.map(({ value, label }) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <p className={styles.message} role="status" data-tone={message?.tone}>
-          {message?.text ?? ""}
-        </p>
-
-        {visible.length === 0 ? (
-          <p className={styles.muted}>
-            {applications.length === 0 ? "No applications yet." : "Nothing matches that search."}
+      {tab === "teams" ? (
+        <div
+          id="panel-teams"
+          role="tabpanel"
+          aria-labelledby="tab-teams"
+          className={styles.tabPanel}
+        >
+          <p className={styles.message} role="status" data-tone={message?.tone}>
+            {message?.text ?? ""}
           </p>
-        ) : (
-          <ul className={styles.list}>
-            {visible.map((application) => (
-              <li key={application.id} className={styles.row} data-status={application.status}>
-                <div className={styles.who}>
-                  <strong>{application.fullName}</strong>
-                  <a href={`mailto:${application.email}`}>{application.email}</a>
-                </div>
-                <div className={styles.meta}>
-                  <span>{application.school}</span>
-                  <span>{labelFor(EXPERIENCE_LEVELS, application.experience)}</span>
-                  <span>
-                    {application.teamMode === "team"
-                      ? `Team${application.teamName ? `: ${application.teamName}` : ""}`
-                      : "Looking for a team"}
-                  </span>
-                  <span>{submittedFormat.format(new Date(application.createdAt))}</span>
-                  {application.hasResume && (
-                    <a
-                      href={`/api/admin/applications/${application.id}/resume`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Resume
-                    </a>
-                  )}
-                </div>
-                <select
-                  className={styles.status}
-                  aria-label={`Status for ${application.fullName}`}
-                  value={application.status}
-                  disabled={saving === application.id}
-                  onChange={(event) =>
-                    void changeStatus(application, event.target.value as ApplicationStatus)
-                  }
-                >
-                  {APPLICATION_STATUSES.map(({ value, label }) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-                <details className={styles.more}>
-                  <summary>Details</summary>
-                  <Details application={application} />
-                </details>
-              </li>
+          <TeamsView applications={applications} busy={teamBusy} onEdit={editTeam} />
+        </div>
+      ) : (
+        <div
+          id="panel-applications"
+          role="tabpanel"
+          aria-labelledby="tab-applications"
+          className={styles.tabPanel}
+        >
+          <dl className={styles.stats}>
+            <Stat label="Total" value={applications.length} />
+            <Stat label="Last 24 hours" value={stats.last24h} />
+            {APPLICATION_STATUSES.map(({ value, label }) => (
+              <Stat key={value} label={label} value={statusCounts[value]} />
             ))}
-          </ul>
-        )}
-      </section>
+            <Stat label="With resume" value={stats.withResume} />
+          </dl>
+
+          <div className={styles.panels}>
+            <Breakdown title="Experience" counts={stats.byExperience} />
+            <Breakdown title="Top schools" counts={stats.topSchools} />
+            <Breakdown
+              title="Teams"
+              counts={[
+                { label: "Team", count: stats.team },
+                { label: "Looking for a team", count: stats.solo },
+              ]}
+            />
+          </div>
+
+          <section className={styles.panel} aria-labelledby="checkin-title">
+            <h2 id="checkin-title" className={styles.panelTitle}>
+              Check-in sheet
+            </h2>
+            <p className={styles.muted}>
+              Excel file with ID-checked and joined-Discord boxes. A row turns green once both are
+              ticked. Setup steps are on the file&rsquo;s &ldquo;How to use&rdquo; tab.
+            </p>
+            <div className={styles.downloads}>
+              <a className={styles.download} href="/api/admin/checkin-sheet?status=accepted">
+                Download accepted ({statusCounts.accepted})
+              </a>
+              <a className={styles.download} href="/api/admin/checkin-sheet?status=all">
+                Download everyone ({applications.length})
+              </a>
+            </div>
+          </section>
+
+          <section aria-labelledby="list-title">
+            <div className={styles.toolbar}>
+              <h2 id="list-title" className={styles.panelTitle}>
+                All applications
+              </h2>
+              <input
+                type="search"
+                className={styles.input}
+                placeholder="Search name, email, school, team"
+                aria-label="Search applications"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+              />
+              <select
+                className={styles.input}
+                aria-label="Filter by status"
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value as typeof statusFilter)}
+              >
+                <option value="all">All statuses</option>
+                {APPLICATION_STATUSES.map(({ value, label }) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <p className={styles.message} role="status" data-tone={message?.tone}>
+              {message?.text ?? ""}
+            </p>
+
+            {visible.length === 0 ? (
+              <p className={styles.muted}>
+                {applications.length === 0
+                  ? "No applications yet."
+                  : "Nothing matches that search."}
+              </p>
+            ) : (
+              <ul className={styles.list}>
+                {visible.map((application) => (
+                  <li key={application.id} className={styles.row} data-status={application.status}>
+                    <div className={styles.who}>
+                      <strong>{application.fullName}</strong>
+                      <a href={`mailto:${application.email}`}>{application.email}</a>
+                    </div>
+                    <div className={styles.meta}>
+                      <span>{application.school}</span>
+                      <span>{labelFor(EXPERIENCE_LEVELS, application.experience)}</span>
+                      <span>
+                        {application.teamMode === "team"
+                          ? `Team${application.teamName ? `: ${application.teamName}` : ""}`
+                          : "Looking for a team"}
+                      </span>
+                      <span>{submittedFormat.format(new Date(application.createdAt))}</span>
+                      {application.hasResume && (
+                        <a
+                          href={`/api/admin/applications/${application.id}/resume`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Resume
+                        </a>
+                      )}
+                    </div>
+                    <select
+                      className={styles.status}
+                      aria-label={`Status for ${application.fullName}`}
+                      value={application.status}
+                      disabled={saving === application.id}
+                      onChange={(event) =>
+                        void changeStatus(application, event.target.value as ApplicationStatus)
+                      }
+                    >
+                      {APPLICATION_STATUSES.map(({ value, label }) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                    <details className={styles.more}>
+                      <summary>Details</summary>
+                      <Details
+                        application={application}
+                        deleting={deleting === application.id}
+                        onDelete={() => void deleteOne(application)}
+                      />
+                    </details>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
+      )}
     </main>
   );
 }

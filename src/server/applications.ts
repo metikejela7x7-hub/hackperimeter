@@ -11,6 +11,7 @@ import {
   MAX_TEAMMATES,
   type ApplicationStatus,
 } from "@/data/apply";
+import type { TeamUpdate } from "@/components/Admin/teamEdits";
 import { selectAll, supabaseAdmin } from "./supabase";
 
 /** An application as the admin dashboard and notifications see it. */
@@ -333,6 +334,43 @@ export async function releaseAcceptanceEmail(id: string): Promise<void> {
     .update({ accepted_email_sent_at: null })
     .eq("id", id);
   if (error) throw error;
+}
+
+/** Writes organizer team edits (see planTeamEdit) and returns the updated applications. */
+export async function updateTeams(updates: readonly TeamUpdate[]): Promise<ApplicationRecord[]> {
+  const db = supabaseAdmin();
+  return Promise.all(
+    updates.map(async ({ id, patch }) => {
+      const { data, error } = await db
+        .from("applications")
+        .update({
+          ...(patch.teamMode !== undefined ? { team_mode: patch.teamMode } : {}),
+          ...(patch.teamName !== undefined ? { team_name: patch.teamName } : {}),
+          ...(patch.teammates !== undefined ? { teammates: patch.teammates } : {}),
+        })
+        .eq("id", id)
+        .select(COLUMNS)
+        .single<ApplicationRow>();
+      if (error) throw error;
+      return toRecord(data);
+    }),
+  );
+}
+
+/**
+ * Permanently deletes an application. Returns its resume's storage path (or
+ * null when it had none) so the caller can remove the file, or undefined when
+ * no application has this id.
+ */
+export async function deleteApplication(id: string): Promise<string | null | undefined> {
+  const { data, error } = await supabaseAdmin()
+    .from("applications")
+    .delete()
+    .eq("id", id)
+    .select("resume_path")
+    .maybeSingle<{ resume_path: string | null }>();
+  if (error) throw error;
+  return data ? data.resume_path : undefined;
 }
 
 export function isApplicationId(value: string): boolean {

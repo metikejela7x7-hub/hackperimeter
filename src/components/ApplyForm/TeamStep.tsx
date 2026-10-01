@@ -31,8 +31,7 @@ export function TeamStep({ data, errors, onChange, onBlur }: StepProps) {
           <TextField
             name="teamName"
             label="Team name"
-            optional
-            hint="Not decided yet? Leave it blank."
+            hint="Ask your teammates to enter the same name so we can match you up."
             autoComplete="off"
             maxLength={LIMITS.teamName}
             value={data.teamName}
@@ -49,13 +48,17 @@ export function TeamStep({ data, errors, onChange, onBlur }: StepProps) {
               const nameField = teammateNameField(index);
               const emailField = teammateEmailField(index);
               const mate = data.teammates[index];
+              const optional = index > 0;
               return (
-                <Subgroup key={index} legend={`Teammate ${index + 1} (optional)`}>
+                <Subgroup
+                  key={index}
+                  legend={`Teammate ${index + 1}${optional ? " (optional)" : ""}`}
+                >
                   <FieldGrid>
                     <TextField
                       name={nameField}
                       label="Name"
-                      optional
+                      optional={optional}
                       showOptional={false}
                       autoComplete="off"
                       maxLength={LIMITS.name}
@@ -67,7 +70,7 @@ export function TeamStep({ data, errors, onChange, onBlur }: StepProps) {
                     <TextField
                       name={emailField}
                       label="Email"
-                      optional
+                      optional={optional}
                       showOptional={false}
                       type="email"
                       inputMode="email"
