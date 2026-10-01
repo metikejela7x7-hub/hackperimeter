@@ -10,6 +10,7 @@ export function AboutStep({ data, errors, onChange, onBlur }: StepProps) {
         <TextField
           name="fullName"
           label="Full name"
+          hint="As it appears on your photo ID."
           autoComplete="name"
           maxLength={LIMITS.name}
           value={data.fullName}
@@ -19,7 +20,8 @@ export function AboutStep({ data, errors, onChange, onBlur }: StepProps) {
         />
         <TextField
           name="email"
-          label="Email"
+          label="Personal email"
+          hint="Like Gmail. School inboxes often block us."
           type="email"
           inputMode="email"
           autoComplete="email"

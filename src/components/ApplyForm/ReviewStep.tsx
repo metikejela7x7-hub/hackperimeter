@@ -73,7 +73,7 @@ export function ReviewStep({ data, errors, onChange, onEdit }: ReviewStepProps) 
       <div className={styles.summary}>
         <Block title="About you" step={0} onEdit={onEdit}>
           <Row term="Full name">{data.fullName.trim()}</Row>
-          <Row term="Email">{data.email.trim()}</Row>
+          <Row term="Personal email">{data.email.trim()}</Row>
           <Row term="School">{data.school.trim()}</Row>
           <Row term="Graduation year">{labelFor(GRADUATION_YEARS, data.graduationYear)}</Row>
         </Block>
