@@ -5,6 +5,9 @@ const mocks = vi.hoisted(() => ({
   createApplication: vi.fn(),
   listApplications: vi.fn(),
   updateStatus: vi.fn(),
+  deleteApplication: vi.fn(),
+  updateTeams: vi.fn(),
+  deleteResume: vi.fn(),
   getAdmin: vi.fn(),
   withinRateLimit: vi.fn(),
   notifyNewApplication: vi.fn(),
@@ -18,6 +21,12 @@ vi.mock("@/server/applications", async (importOriginal) => ({
   createApplication: mocks.createApplication,
   listApplications: mocks.listApplications,
   updateStatus: mocks.updateStatus,
+  deleteApplication: mocks.deleteApplication,
+  updateTeams: mocks.updateTeams,
+}));
+vi.mock("@/server/resumes", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/server/resumes")>()),
+  deleteResume: mocks.deleteResume,
 }));
 vi.mock("@/server/auth", () => ({ getAdmin: mocks.getAdmin }));
 vi.mock("@/server/rateLimit", async (importOriginal) => ({
@@ -32,6 +41,7 @@ vi.mock("@/server/discord", async (importOriginal) => ({
 
 const applications = await import("@/app/api/applications/route");
 const adminApplication = await import("@/app/api/admin/applications/[id]/route");
+const teamRoute = await import("@/app/api/admin/applications/[id]/team/route");
 const checkinSheet = await import("@/app/api/admin/checkin-sheet/route");
 const recap = await import("@/app/api/cron/daily-recap/route");
 
@@ -132,6 +142,80 @@ describe("admin routes", () => {
     mocks.updateStatus.mockResolvedValue({ application: record(), needsAcceptanceEmail: false });
     await patch({ status: "pending" });
     expect(mocks.after).not.toHaveBeenCalled();
+  });
+
+  const remove = () =>
+    adminApplication.DELETE(
+      new Request(`http://localhost/api/admin/applications/${id}`, { method: "DELETE" }),
+      { params: Promise.resolve({ id }) },
+    );
+
+  it("only lets admins delete applications", async () => {
+    mocks.getAdmin.mockResolvedValue(null);
+    expect((await remove()).status).toBe(401);
+    expect(mocks.deleteApplication).not.toHaveBeenCalled();
+  });
+
+  it("deletes an application and its resume", async () => {
+    mocks.deleteApplication.mockResolvedValue("abc.pdf");
+    mocks.deleteResume.mockResolvedValue(undefined);
+    expect((await remove()).status).toBe(204);
+    expect(mocks.deleteApplication).toHaveBeenCalledWith(id);
+    expect(mocks.deleteResume).toHaveBeenCalledWith("abc.pdf");
+  });
+
+  it("still succeeds if the resume file can't be removed", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    mocks.deleteApplication.mockResolvedValue("abc.pdf");
+    mocks.deleteResume.mockRejectedValue(new Error("storage down"));
+    expect((await remove()).status).toBe(204);
+  });
+
+  it("returns 404 for an application that doesn't exist", async () => {
+    mocks.deleteApplication.mockResolvedValue(undefined);
+    expect((await remove()).status).toBe(404);
+    expect(mocks.deleteResume).not.toHaveBeenCalled();
+  });
+
+  const teamEdit = (forId: string, body: unknown) =>
+    teamRoute.POST(
+      new Request(`http://localhost/api/admin/applications/${forId}/team`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+      { params: Promise.resolve({ id: forId }) },
+    );
+
+  it("only lets admins edit teams", async () => {
+    mocks.getAdmin.mockResolvedValue(null);
+    expect((await teamEdit(id, { action: "unlink" })).status).toBe(401);
+    expect(mocks.updateTeams).not.toHaveBeenCalled();
+  });
+
+  it("teams two applicants up and returns the changed applications", async () => {
+    const sam = record({ fullName: "Sam" });
+    const sara = record({ fullName: "Sara" });
+    mocks.listApplications.mockResolvedValue([sam, sara]);
+    mocks.updateTeams.mockImplementation(async (updates: { id: string }[]) =>
+      updates.map((u) => record({ id: u.id, teamMode: "team" })),
+    );
+
+    const response = await teamEdit(sam.id, { action: "link", withId: sara.id });
+
+    expect(response.status).toBe(200);
+    expect((await response.json()).applications).toHaveLength(2);
+    expect(mocks.updateTeams.mock.calls[0][0].map((u: { id: string }) => u.id).sort()).toEqual(
+      [sam.id, sara.id].sort(),
+    );
+  });
+
+  it("explains team edits that can't be done", async () => {
+    const sam = record({ fullName: "Sam" });
+    mocks.listApplications.mockResolvedValue([sam]);
+    const response = await teamEdit(sam.id, { action: "rename", teamName: "Owls" });
+    expect(response.status).toBe(400);
+    expect((await response.json()).error).toMatch(/Team them up/);
+    expect((await teamEdit(sam.id, { action: "dance" })).status).toBe(400);
   });
 
   it("serves the check-in sheet for accepted applicants", async () => {

@@ -1,7 +1,8 @@
 import { listApplications } from "@/server/applications";
 import { postToDiscord } from "@/server/discord";
 import { isCronRequest, serverError, unauthorized } from "@/server/http";
-import { computeStats, recapEmbed } from "@/server/stats";
+import { recapEmbed } from "@/server/recap";
+import { computeStats } from "@/server/stats";
 
 /** GET /api/cron/daily-recap: Vercel Cron posts yesterday's numbers to Discord. */
 export async function GET(request: Request) {

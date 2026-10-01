@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { computeStats, daysUntilEvent, recapEmbed } from "@/server/stats";
+import { daysUntilEvent, recapEmbed } from "@/server/recap";
+import { computeStats } from "@/server/stats";
 import { record } from "./fixtures";
 
 const NOW = new Date("2026-10-02T13:00:00.000Z");

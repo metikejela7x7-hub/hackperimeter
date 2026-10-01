@@ -3,7 +3,6 @@ import { Dashboard } from "@/components/Admin/Dashboard";
 import { listApplications } from "@/server/applications";
 import { getAdmin } from "@/server/auth";
 import { MissingConfigError } from "@/server/env";
-import { computeStats } from "@/server/stats";
 import styles from "./admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -28,11 +27,5 @@ export default async function AdminPage() {
   if (!admin) redirect("/admin/login");
 
   const applications = await listApplications();
-  return (
-    <Dashboard
-      adminEmail={admin.email}
-      applications={applications}
-      stats={computeStats(applications)}
-    />
-  );
+  return <Dashboard adminEmail={admin.email} applications={applications} />;
 }

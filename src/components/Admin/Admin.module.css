@@ -341,3 +341,195 @@
 .details dd {
   overflow-wrap: anywhere;
 }
+
+/* ---------- Tabs ---------- */
+
+.tabs {
+  display: flex;
+  gap: 1.5rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.tab {
+  margin-bottom: -1px;
+  padding: 0.6rem 0;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.tab[aria-selected="true"] {
+  border-bottom-color: var(--amber);
+  color: var(--text);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+.tabPanel {
+  display: grid;
+  gap: 2rem;
+}
+
+.tabPanel > section {
+  display: grid;
+  gap: 0.85rem;
+}
+
+/* ---------- Teams ---------- */
+
+.teams {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+  gap: 1rem;
+}
+
+.team {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+  padding: 1rem 1.1rem 1.1rem;
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+}
+
+.teamHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  font-size: 0.9375rem;
+}
+
+.teamName {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.members {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.member {
+  display: grid;
+  gap: 0.15rem;
+  padding-left: 0.7rem;
+  border-left: 3px solid var(--line-strong);
+  font-size: 0.9375rem;
+  overflow-wrap: anywhere;
+}
+
+.member a {
+  color: var(--text-muted);
+}
+
+.member[data-status="accepted"] {
+  border-left-color: #5fbf77;
+}
+
+.member[data-status="waitlisted"] {
+  border-left-color: var(--amber);
+}
+
+.member[data-status="rejected"],
+.member[data-missing] {
+  border-left-color: var(--text-faint);
+  border-left-style: dashed;
+}
+
+.memberTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.flag {
+  padding: 0 0.4rem;
+  border: 1px solid var(--amber);
+  color: var(--amber);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ---------- Delete ---------- */
+
+.dangerZone {
+  grid-column: 1 / -1;
+}
+
+.deleteButton {
+  padding: 0.45rem 0.8rem;
+  background: none;
+  border: 1px solid var(--error);
+  color: var(--error);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.deleteButton:hover:not(:disabled) {
+  background: var(--error);
+  color: var(--bg);
+}
+
+.deleteButton:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.deleteButton:focus-visible {
+  outline: 2px solid var(--error);
+  outline-offset: 2px;
+}
+
+/* ---------- Team editing ---------- */
+
+.picker {
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.4rem 0.6rem;
+  background: var(--bg-deep);
+  color: var(--text-muted);
+  border: 1px dashed var(--line-strong);
+  border-radius: 0;
+  font: inherit;
+  font-size: 0.875rem;
+}
+
+.picker:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+.renameForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  width: 100%;
+}
+
+.renameForm .input {
+  flex: 1 1 12rem;
+}
+
+.linkButton:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}

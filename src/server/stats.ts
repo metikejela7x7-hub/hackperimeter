@@ -1,11 +1,5 @@
-import {
-  APPLICATION_STATUSES,
-  EXPERIENCE_LEVELS,
-  type ApplicationStatus,
-} from "@/data/apply";
-import { EVENT } from "@/data/event";
+import { APPLICATION_STATUSES, EXPERIENCE_LEVELS, type ApplicationStatus } from "@/data/apply";
 import type { ApplicationRecord } from "./applications";
-import { AMBER, type DiscordEmbed } from "./discord";
 
 export interface Count {
   label: string;
@@ -58,40 +52,5 @@ export function computeStats(applications: ApplicationRecord[], now = new Date()
     team: applications.filter((a) => a.teamMode === "team").length,
     solo: applications.filter((a) => a.teamMode === "solo").length,
     withResume: applications.filter((a) => a.hasResume).length,
-  };
-}
-
-const list = (counts: Count[]) =>
-  counts.length > 0 ? counts.map(({ label, count }) => `${label}: **${count}**`).join("\n") : "—";
-
-/** Whole days from `now` until the event starts (0 on the day itself). */
-export function daysUntilEvent(now = new Date()): number {
-  return Math.max(0, Math.ceil((EVENT.startsAt - now.getTime()) / DAY_MS));
-}
-
-export function recapEmbed(stats: ApplicationStats, now = new Date()): DiscordEmbed {
-  const days = daysUntilEvent(now);
-  return {
-    title: `Daily recap: ${stats.last24h} new application${stats.last24h === 1 ? "" : "s"}`,
-    description:
-      days > 0
-        ? `**${stats.total}** total so far. ${days} day${days === 1 ? "" : "s"} until ${EVENT.name}.`
-        : `**${stats.total}** total.`,
-    color: AMBER,
-    fields: [
-      {
-        name: "Review status",
-        value: list(APPLICATION_STATUSES.map(({ value, label }) => ({ label, count: stats.byStatus[value] }))),
-        inline: true,
-      },
-      { name: "Experience", value: list(stats.byExperience), inline: true },
-      {
-        name: "Teams",
-        value: `Team: **${stats.team}**\nLooking for a team: **${stats.solo}**\nWith resume: **${stats.withResume}**`,
-        inline: true,
-      },
-      { name: "Top schools", value: list(stats.topSchools) },
-    ],
-    timestamp: now.toISOString(),
   };
 }

@@ -40,6 +40,15 @@ export async function storeResume(bytes: Uint8Array): Promise<string> {
   return data.id;
 }
 
+/** Removes a stored resume and its upload record, e.g. after its application is deleted. */
+export async function deleteResume(path: string): Promise<void> {
+  const db = supabaseAdmin();
+  const { error: removeError } = await db.storage.from(RESUME_BUCKET).remove([path]);
+  if (removeError) throw removeError;
+  const { error } = await db.from("resume_uploads").delete().eq("path", path);
+  if (error) throw error;
+}
+
 /** A short-lived download link for admins. */
 export async function resumeDownloadUrl(path: string, fileName: string): Promise<string> {
   const { data, error } = await supabaseAdmin()

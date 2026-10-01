@@ -101,11 +101,14 @@ export function validate(data: ApplicationData): FormErrors {
   if (!data.teamMode) errors.teamMode = "Choose whether you're applying with a team or looking for one.";
 
   if (data.teamMode === "team") {
+    if (!data.teamName.trim()) errors.teamName = "Enter your team name.";
+
     const seen = new Set([email.toLowerCase()]);
     for (const index of TEAMMATE_INDEXES) {
       const name = data.teammates[index].name.trim();
       const mate = data.teammates[index].email.trim();
-      if (!name && !mate) continue;
+      // Teammate 1 is required for teams; the rest are optional.
+      if (!name && !mate && index > 0) continue;
 
       if (!name) errors[teammateNameField(index)] = "Enter this teammate's name.";
       if (!mate) {
