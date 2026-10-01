@@ -1,7 +1,15 @@
 import { MAX_TEAMMATES, TEAM_MODES } from "@/data/apply";
 import { EVENT } from "@/data/event";
 import { FieldGrid, FieldNote, FieldStack, RadioGroup, Subgroup, TextField } from "./Fields";
-import { LIMITS, TEAM_FIELDS, TEAMMATE_INDEXES, teammateEmailField, teammateNameField } from "./validation";
+import {
+  EMAIL_PATTERN,
+  LIMITS,
+  TEAM_FIELDS,
+  TEAMMATE_INDEXES,
+  looksLikeSchoolEmail,
+  teammateEmailField,
+  teammateNameField,
+} from "./validation";
 import type { ApplicationData, StepProps } from "./types";
 
 export function TeamStep({ data, errors, onChange, onBlur }: StepProps) {
@@ -41,14 +49,18 @@ export function TeamStep({ data, errors, onChange, onBlur }: StepProps) {
 
           <FieldStack>
             <FieldNote>
-              Teams are {EVENT.teamSize} people including you. You can list up to{" "}
-              {MAX_TEAMMATES} teammates.
+              Teams are {EVENT.teamSize} people including you, and you can list up to{" "}
+              {MAX_TEAMMATES} teammates. Each teammate applies separately, so enter the{" "}
+              <strong>personal email they&rsquo;ll apply with</strong> so we can match your team.
+              Not sure? Ask them.
             </FieldNote>
             {TEAMMATE_INDEXES.map((index) => {
               const nameField = teammateNameField(index);
               const emailField = teammateEmailField(index);
               const mate = data.teammates[index];
               const optional = index > 0;
+              const email = mate.email.trim();
+              const schoolEmail = EMAIL_PATTERN.test(email) && looksLikeSchoolEmail(email);
               return (
                 <Subgroup
                   key={index}
@@ -58,6 +70,7 @@ export function TeamStep({ data, errors, onChange, onBlur }: StepProps) {
                     <TextField
                       name={nameField}
                       label="Name"
+                      hint="As on their photo ID."
                       optional={optional}
                       showOptional={false}
                       autoComplete="off"
@@ -70,6 +83,12 @@ export function TeamStep({ data, errors, onChange, onBlur }: StepProps) {
                     <TextField
                       name={emailField}
                       label="Email"
+                      hint="The email they'll apply with."
+                      warning={
+                        schoolEmail
+                          ? "This looks like a school email. Make sure it's the one they'll apply with."
+                          : undefined
+                      }
                       optional={optional}
                       showOptional={false}
                       type="email"

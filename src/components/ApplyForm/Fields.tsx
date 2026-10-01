@@ -13,9 +13,12 @@ import styles from "./Fields.module.css";
 const fieldId = (name: FieldName) => `apply-${name}`;
 const hintId = (name: FieldName) => `${fieldId(name)}-hint`;
 const errorId = (name: FieldName) => `${fieldId(name)}-error`;
+const warningId = (name: FieldName) => `${fieldId(name)}-warning`;
 
-function describedBy(name: FieldName, hint?: string, error?: string) {
-  const ids = [hint && hintId(name), error && errorId(name)].filter(Boolean);
+function describedBy(name: FieldName, hint?: string, error?: string, warning?: string) {
+  const ids = [hint && hintId(name), error && errorId(name), warning && warningId(name)].filter(
+    Boolean,
+  );
   return ids.length > 0 ? ids.join(" ") : undefined;
 }
 
@@ -35,6 +38,16 @@ function FieldError({ name, message }: { name: FieldName; message?: string }) {
         <path d="M8 4.5v4.2M8 10.6v1" stroke="currentColor" strokeWidth="1.5" />
       </svg>
       <span>{message}</span>
+    </p>
+  );
+}
+
+/** A heads-up that doesn't block submitting, e.g. "this looks like a school email". */
+function FieldWarning({ name, message }: { name: FieldName; message?: string }) {
+  if (!message) return null;
+  return (
+    <p id={warningId(name)} className={styles.warning}>
+      {message}
     </p>
   );
 }
@@ -73,8 +86,13 @@ export function TextField({
   showOptional = true,
   hint,
   error,
+  warning,
   ...rest
-}: BaseFieldProps & ControlProps<InputHTMLAttributes<HTMLInputElement>>) {
+}: BaseFieldProps & {
+  /** Shown under the input when there's no error; never blocks the form. */
+  warning?: string;
+} & ControlProps<InputHTMLAttributes<HTMLInputElement>>) {
+  const shownWarning = error ? undefined : warning;
   return (
     <div className={styles.field}>
       <label className={styles.label} htmlFor={fieldId(name)}>
@@ -89,9 +107,10 @@ export function TextField({
         className={styles.control}
         required={!optional}
         aria-invalid={error ? true : undefined}
-        aria-describedby={describedBy(name, hint, error)}
+        aria-describedby={describedBy(name, hint, error, shownWarning)}
       />
       <FieldError name={name} message={error} />
+      <FieldWarning name={name} message={shownWarning} />
     </div>
   );
 }

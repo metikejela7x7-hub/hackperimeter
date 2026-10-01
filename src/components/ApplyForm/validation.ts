@@ -35,6 +35,11 @@ export const TEAM_FIELDS = FIELDS_BY_STEP[2];
 
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+/** True for addresses like name@gsu.edu or name@student.gsu.edu (also .edu.xx and .ac.xx). */
+export function looksLikeSchoolEmail(email: string): boolean {
+  return /@[^@\s]+\.(edu|edu\.[a-z]{2}|ac\.[a-z]{2})$/i.test(email.trim());
+}
+
 export const LIMITS = {
   name: 100,
   short: 120,

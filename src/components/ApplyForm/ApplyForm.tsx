@@ -146,7 +146,7 @@ export function ApplyForm() {
   };
 
   if (status === "submitted") {
-    return <Confirmation name={data.fullName} email={data.email} />;
+    return <Confirmation name={data.fullName} email={data.email} isTeam={data.teamMode === "team"} />;
   }
 
   const current = STEPS[step];

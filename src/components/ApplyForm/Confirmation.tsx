@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { EVENT } from "@/data/event";
 import { Button } from "@/components/Button/Button";
 import styles from "./Confirmation.module.css";
@@ -8,9 +8,52 @@ import styles from "./Confirmation.module.css";
 interface ConfirmationProps {
   name: string;
   email: string;
+  /** Team applicants get a reminder to send teammates the form. */
+  isTeam: boolean;
 }
 
-export function Confirmation({ name, email }: ConfirmationProps) {
+/** Tells team applicants their teammates must apply too, with a link to share. */
+function ShareWithTeammates() {
+  const [copied, setCopied] = useState(false);
+  const link = `${window.location.origin}${window.location.pathname}`;
+  const linkRef = useRef<HTMLElement>(null);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+    } catch {
+      // Clipboard blocked: select the link so it can be copied by hand.
+      const range = document.createRange();
+      if (linkRef.current) range.selectNodeContents(linkRef.current);
+      window.getSelection()?.removeAllRanges();
+      window.getSelection()?.addRange(range);
+    }
+  };
+
+  return (
+    <div className={styles.next}>
+      <p className={styles.nextTitle}>Next: tell your teammates</p>
+      <p>
+        Each teammate needs to apply separately, using the email you listed for them. Send them
+        this link:
+      </p>
+      <div className={styles.share}>
+        <code ref={linkRef} className={styles.link}>
+          {link}
+        </code>
+        <button type="button" className={styles.copy} onClick={() => void copy()}>
+          {copied ? "Copied" : "Copy link"}
+        </button>
+      </div>
+      <p className="sr-only" role="status">
+        {copied ? "Link copied" : ""}
+      </p>
+    </div>
+  );
+}
+
+export function Confirmation({ name, email, isTeam }: ConfirmationProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const firstName = name.trim().split(/\s+/)[0];
 
@@ -60,6 +103,8 @@ export function Confirmation({ name, email }: ConfirmationProps) {
         We&rsquo;ve got your application for {EVENT.name}. Keep an eye on{" "}
         <strong className={styles.email}>{email.trim()}</strong> for what happens next.
       </p>
+
+      {isTeam && <ShareWithTeammates />}
 
       <dl className={styles.facts}>
         <div>

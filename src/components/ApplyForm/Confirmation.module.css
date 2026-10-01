@@ -140,3 +140,61 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* ---------- Team applicants: share the form with teammates ---------- */
+
+.next {
+  display: grid;
+  gap: 0.6rem;
+  width: 100%;
+  max-width: 34rem;
+  padding: 1rem 1.1rem 1.1rem;
+  border: 1px solid var(--amber);
+  background: var(--amber-soft);
+  text-align: left;
+}
+
+.nextTitle {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+.share {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.link {
+  flex: 1 1 14rem;
+  min-width: 0;
+  padding: 0.55rem 0.7rem;
+  background: var(--bg-deep);
+  border: 1px solid var(--line-strong);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.copy {
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  background: var(--amber);
+  border: 0;
+  color: var(--bg-deep);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.copy:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}

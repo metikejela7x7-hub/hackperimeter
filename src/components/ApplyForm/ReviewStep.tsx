@@ -105,6 +105,11 @@ export function ReviewStep({ data, errors, onChange, onEdit }: ReviewStepProps) 
                 ) : (
                   <Empty />
                 )}
+                {teammates.length > 0 && (
+                  <p className={styles.reminder}>
+                    Double-check these match the emails your teammates will apply with.
+                  </p>
+                )}
               </Row>
             </>
           )}
