@@ -89,7 +89,7 @@ export function ReviewStep({ data, errors, onChange, onEdit }: ReviewStepProps) 
         </Block>
 
         <Block title="Team" step={2} onEdit={onEdit}>
-          <Row term="Applying">{isTeam ? "With a team" : "Solo"}</Row>
+          <Row term="Applying">{isTeam ? "With a team" : "Looking for a team"}</Row>
           {isTeam && (
             <>
               <Row term="Team name">{teamName || <Empty />}</Row>

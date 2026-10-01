@@ -98,7 +98,7 @@ export function validate(data: ApplicationData): FormErrors {
   }
 
   // Step 3: Team
-  if (!data.teamMode) errors.teamMode = "Choose whether you're applying solo or with a team.";
+  if (!data.teamMode) errors.teamMode = "Choose whether you're applying with a team or looking for one.";
 
   if (data.teamMode === "team") {
     const seen = new Set([email.toLowerCase()]);

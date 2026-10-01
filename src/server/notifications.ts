@@ -11,7 +11,7 @@ export async function notifyNewApplication(application: ApplicationRecord): Prom
       ? `Team${application.teamName ? ` "${application.teamName}"` : ""} · ${
           application.teammates.length + 1
         } people listed`
-      : "Solo";
+      : "Looking for a team";
 
   await Promise.all([
     sendEmail(confirmationEmail(application)),

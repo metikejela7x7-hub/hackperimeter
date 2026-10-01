@@ -52,8 +52,8 @@ export const INTERESTS: readonly ChoiceOption[] = [
 export const TEAM_MODES: readonly ChoiceOption[] = [
   {
     value: "solo",
-    label: "Applying solo",
-    description: "Just me.",
+    label: "Looking for a team",
+    description: "Just me for now. I'd like to meet teammates at the event.",
   },
   {
     value: "team",

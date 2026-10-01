@@ -209,7 +209,7 @@ export function Dashboard({ adminEmail, applications: initial, stats }: Dashboar
           title="Teams"
           counts={[
             { label: "Team", count: stats.team },
-            { label: "Solo", count: stats.solo },
+            { label: "Looking for a team", count: stats.solo },
           ]}
         />
       </div>
@@ -282,7 +282,7 @@ export function Dashboard({ adminEmail, applications: initial, stats }: Dashboar
                   <span>
                     {application.teamMode === "team"
                       ? `Team${application.teamName ? `: ${application.teamName}` : ""}`
-                      : "Solo"}
+                      : "Looking for a team"}
                   </span>
                   <span>{submittedFormat.format(new Date(application.createdAt))}</span>
                   {application.hasResume && (
