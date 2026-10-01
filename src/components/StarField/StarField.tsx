@@ -203,7 +203,41 @@ function paintGalaxy(): HTMLCanvasElement {
   return canvas;
 }
 
-/** Fixed, decorative star layer with a distant galaxy and the odd meteor. Static under prefers-reduced-motion. */
+/** The provided outbreak-planet artwork, used as-is (not repainted). */
+const PLANET_SRC = "/images/outbreak-planet.png";
+
+/**
+ * Loads the planet artwork once and bakes a soft radial fade into its own
+ * alpha channel (the same "fades to nothing at the edges" trick the
+ * hand-painted galaxy gets for free from its gradients), so its square
+ * frame never shows as a hard edge against the sky. Calls `onReady` once
+ * it's usable.
+ */
+function loadPlanet(onReady: (bitmap: HTMLCanvasElement, aspect: number) => void): void {
+  const img = new Image();
+  img.onload = () => {
+    const w = img.naturalWidth;
+    const h = img.naturalHeight;
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const g = canvas.getContext("2d")!;
+    g.drawImage(img, 0, 0, w, h);
+    g.globalCompositeOperation = "destination-in";
+    const cx = w * 0.52;
+    const cy = h * 0.46;
+    const r = Math.max(w, h) * 0.5;
+    const fade = g.createRadialGradient(cx, cy, r * 0.3, cx, cy, r * 0.62);
+    fade.addColorStop(0, "rgba(0, 0, 0, 1)");
+    fade.addColorStop(1, "rgba(0, 0, 0, 0)");
+    g.fillStyle = fade;
+    g.fillRect(0, 0, w, h);
+    onReady(canvas, w / h);
+  };
+  img.src = PLANET_SRC;
+}
+
+/** Fixed, decorative star layer with a distant galaxy, the outbreak's own dying planet, and the odd meteor. Static under prefers-reduced-motion. */
 export function StarField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -238,6 +272,13 @@ export function StarField() {
     );
     const galaxy = paintGalaxy();
     const glows = TINTS.map(glowSprite);
+    let planet: HTMLCanvasElement | null = null;
+    let planetAspect = 1;
+    loadPlanet((bitmap, aspect) => {
+      planet = bitmap;
+      planetAspect = aspect;
+      draw(performance.now());
+    });
     let meteor: Meteor | null = null;
     let nextMeteor = performance.now() + 4000;
     let frame = 0;
@@ -320,6 +361,7 @@ export function StarField() {
       }
 
       drawGalaxy(t, scroll);
+      drawPlanet(scroll);
       if (!motion.matches) drawMeteor(time);
     };
 
@@ -343,6 +385,25 @@ export function StarField() {
       // Dimmer on phones, where it sits right behind the text.
       ctx.globalAlpha = sky.w < 640 ? 0.4 : 0.7;
       ctx.drawImage(galaxy, -GALAXY_PX / 2, -GALAXY_PX / 2);
+      ctx.restore();
+    };
+
+    /**
+     * The outbreak world, high on the left — above the galaxy, same side of
+     * the sky. Drifts slower than the stars on scroll. A no-op until the
+     * artwork finishes loading.
+     */
+    const drawPlanet = (scroll: number) => {
+      if (!planet) return;
+      const w = Math.min(Math.max(sky.w, sky.h) * 0.15, 200);
+      const h = w / planetAspect;
+      const cx = sky.w * (sky.w < 640 ? 0.24 : 0.15);
+      const cy = Math.max(h * 0.55, sky.h * 0.13) - scroll * 0.015;
+
+      ctx.save();
+      // Dimmer on phones, where it sits right behind the text.
+      ctx.globalAlpha = sky.w < 640 ? 0.55 : 0.85;
+      ctx.drawImage(planet, cx - w / 2, cy - h / 2, w, h);
       ctx.restore();
     };
 

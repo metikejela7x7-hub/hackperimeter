@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FAQ } from "@/data/event";
+import { EVENT, FAQ } from "@/data/event";
 import { SectionHeading } from "@/components/SectionHeading/SectionHeading";
 import { useReveal } from "@/hooks/useReveal";
 import styles from "./Faq.module.css";
@@ -13,12 +13,21 @@ export function Faq() {
   return (
     <section id="faq" className={styles.section} aria-labelledby="faq-title">
       <div className={styles.inner}>
-        <SectionHeading
-          id="faq-title"
-          index="05"
-          eyebrow="Briefing notes"
-          title="Questions"
-        />
+        <div className={styles.lead}>
+          <SectionHeading
+            id="faq-title"
+            index="05"
+            eyebrow="Briefing notes"
+            title="Questions"
+          />
+
+          <p className={styles.contact}>
+            Still have questions?{" "}
+            <a className={styles.contactLink} href={`mailto:${EVENT.contactEmail}`}>
+              {EVENT.contactEmail}
+            </a>
+          </p>
+        </div>
 
         <div ref={list.ref} className={`${styles.list} reveal-group`} data-visible={list.visible}>
           {FAQ.map((item, i) => {

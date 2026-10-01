@@ -1,0 +1,31 @@
+/* Pinned to the viewport, right side, vertically centered — like a
+   companion riding along behind the content from section 02 on. */
+.zombie {
+  position: fixed;
+  z-index: 1;
+  top: 50%;
+  right: clamp(0.5rem, 4vw, 4rem);
+  transform: translateY(-50%);
+  width: clamp(14rem, 24vw, 24rem);
+  height: auto;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s var(--ease);
+}
+
+.zombie[data-visible="true"] {
+  opacity: 0.55;
+}
+
+@media (max-width: 56rem) {
+  /* No room beside single-column content at this width without crowding it. */
+  .zombie {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zombie {
+    transition: none;
+  }
+}

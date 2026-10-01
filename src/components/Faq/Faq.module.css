@@ -11,6 +11,12 @@
   padding-inline: var(--gutter);
 }
 
+.lead {
+  display: grid;
+  gap: 1.25rem;
+  align-content: start;
+}
+
 .list {
   border-top: 1px solid var(--line-strong);
 }
@@ -107,4 +113,23 @@
     grid-template-columns: 4fr 8fr;
     gap: clamp(3rem, 8vw, 6rem);
   }
+}
+
+.contact {
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  color: var(--text-muted);
+}
+
+.contactLink {
+  color: var(--amber);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--amber-soft);
+  text-underline-offset: 0.2em;
+  transition: color 0.2s var(--ease);
+}
+
+.contactLink:hover {
+  color: #e8ac3f;
+  text-decoration-color: #e8ac3f;
 }

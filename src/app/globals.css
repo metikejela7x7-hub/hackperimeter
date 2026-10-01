@@ -16,7 +16,7 @@
   --font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", Menlo, monospace;
 
   --gutter: clamp(1.25rem, 5vw, 3rem);
-  --max: 76rem;
+  --max: 108rem;
   --header-h: 4.25rem;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
