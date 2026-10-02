@@ -2,8 +2,9 @@ import { EXPERIENCE_LEVELS, labelFor } from "@/data/apply";
 import { type ApplicationRecord, countApplications } from "./applications";
 import { AMBER, embedValue, postToDiscord } from "./discord";
 import { confirmationEmail, sendEmail } from "./email";
+import { sendTeammateInvites } from "./invites";
 
-/** Runs after a new application is saved: applicant confirmation + exec-server ping. */
+/** Runs after a new application is saved: applicant confirmation, teammate invites, exec-server ping. */
 export async function notifyNewApplication(application: ApplicationRecord): Promise<void> {
   const total = await countApplications().catch(() => null);
   const team =
@@ -15,6 +16,7 @@ export async function notifyNewApplication(application: ApplicationRecord): Prom
 
   await Promise.all([
     sendEmail(confirmationEmail(application)),
+    sendTeammateInvites(application),
     postToDiscord({
       embeds: [
         {

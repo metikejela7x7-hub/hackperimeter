@@ -99,3 +99,39 @@ export function acceptanceEmail(application: { fullName: string; email: string }
     ]),
   };
 }
+
+/**
+ * Sent once to a teammate someone listed who hasn't applied yet. The wording is
+ * fixed; the only applicant-written parts are their name and team name, escaped.
+ */
+export function teammateInviteEmail(invite: {
+  to: string;
+  inviterName: string;
+  teamName: string | null;
+  link: string;
+}): Email {
+  const inviter = invite.inviterName.trim();
+  const team = invite.teamName?.trim();
+  const when = `${EVENT.dateLabel}, ${EVENT.timeLabel}`;
+  const teamText = team ? ` on their team "${team}"` : "";
+  const teamHtml = team ? ` on their team <strong>${escapeHtml(team)}</strong>` : "";
+  return {
+    to: invite.to,
+    subject: `${inviter} listed you as a teammate for ${EVENT.name}`,
+    text: [
+      `Hi,`,
+      `${inviter} applied to ${EVENT.name} and listed you as a teammate${teamText}.`,
+      `When: ${when}\nWhere: ${EVENT.venue}, ${EVENT.address}`,
+      `Each teammate applies separately. To join them, apply with this email address (${invite.to}). Your team details are already filled in:\n${invite.link}`,
+      `Don't know ${inviter}, or not interested? Just ignore this email. We won't email you again.`,
+    ].join("\n\n"),
+    html: layout([
+      `Hi,`,
+      `<strong>${escapeHtml(inviter)}</strong> applied to ${escapeHtml(EVENT.name)} and listed you as a teammate${teamHtml}.`,
+      `<strong>When:</strong> ${escapeHtml(when)}<br><strong>Where:</strong> ${escapeHtml(EVENT.venue)}, ${escapeHtml(EVENT.address)}`,
+      `Each teammate applies separately. To join them, apply with this email address (${escapeHtml(invite.to)}). Your team details are already filled in.`,
+      `<a href="${escapeHtml(invite.link)}" style="display:inline-block;padding:12px 20px;background:#d99a2b;color:#121315;text-decoration:none;font-weight:bold">Apply to join your team</a>`,
+      `<span style="color:#6f6c65">Don't know ${escapeHtml(inviter)}, or not interested? Just ignore this email. We won't email you again.</span>`,
+    ]),
+  };
+}

@@ -25,6 +25,19 @@ const LAST_STEP = STEPS.length - 1;
 
 type Status = "editing" | "submitting" | "submitted";
 
+/** An invite link's details (see /api/invites/:id). */
+interface InviteDetails {
+  email: string;
+  inviterName: string;
+  inviterEmail: string;
+  teamName: string | null;
+}
+
+type InviteState =
+  | { kind: "none" }
+  | { kind: "loaded"; invite: InviteDetails }
+  | { kind: "invalid" };
+
 function withoutFields(errors: FormErrors, fields: readonly FieldName[]): FormErrors {
   const next = { ...errors };
   for (const field of fields) delete next[field];
@@ -39,6 +52,7 @@ export function ApplyForm() {
   const [submitError, setSubmitError] = useState("");
   /** True after "Edit" on the review step: Continue then returns straight to review. */
   const [returnToReview, setReturnToReview] = useState(false);
+  const [invite, setInvite] = useState<InviteState>({ kind: "none" });
 
   const formRef = useRef<HTMLFormElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -50,6 +64,40 @@ export function ApplyForm() {
     focusHeadingOnStepChange.current = false;
     headingRef.current?.focus();
   }, [step]);
+
+  // Opened from a teammate invite email (?invite=…): fill in their email and the team.
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("invite");
+    if (!id) return;
+    let cancelled = false;
+    fetch(`/api/invites/${encodeURIComponent(id)}`)
+      .then(async (response) => {
+        if (cancelled) return;
+        if (!response.ok) {
+          setInvite({ kind: "invalid" });
+          return;
+        }
+        const details = (await response.json()) as InviteDetails;
+        setInvite({ kind: "loaded", invite: details });
+        setData((current) => ({
+          ...current,
+          email: current.email || details.email,
+          teamMode: "team",
+          teamName: current.teamName || details.teamName || "",
+          teammates: current.teammates.map((mate, index) =>
+            index === 0 && !mate.name && !mate.email
+              ? { name: details.inviterName, email: details.inviterEmail }
+              : mate,
+          ),
+        }));
+      })
+      .catch(() => {
+        if (!cancelled) setInvite({ kind: "invalid" });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const goTo = (index: number, fromReview = false) => {
     focusHeadingOnStepChange.current = true;
@@ -146,7 +194,9 @@ export function ApplyForm() {
   };
 
   if (status === "submitted") {
-    return <Confirmation name={data.fullName} email={data.email} isTeam={data.teamMode === "team"} />;
+    return (
+      <Confirmation name={data.fullName} email={data.email} isTeam={data.teamMode === "team"} />
+    );
   }
 
   const current = STEPS[step];
@@ -160,6 +210,20 @@ export function ApplyForm() {
         current={step}
         onSelect={(index) => goTo(index, step === LAST_STEP)}
       />
+
+      {invite.kind === "loaded" && (
+        <p className={styles.invite} role="status">
+          <strong>{invite.invite.inviterName}</strong> invited you to join{" "}
+          {invite.invite.teamName ? <strong>{invite.invite.teamName}</strong> : "their team"}
+          . We&rsquo;ve filled in your email and team details. Fill in the rest, and keep the email
+          they invited so we can match you.
+        </p>
+      )}
+      {invite.kind === "invalid" && (
+        <p className={styles.invite} role="status">
+          That invite link isn&rsquo;t valid any more, but you can still apply below.
+        </p>
+      )}
 
       <form
         ref={formRef}
