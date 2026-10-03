@@ -1,5 +1,4 @@
 import { StarField } from "@/components/StarField/StarField";
-import { Fracture } from "@/components/Fracture/Fracture";
 import { Zombie } from "@/components/Zombie/Zombie";
 import { Navbar } from "@/components/Navbar/Navbar";
 import { Hero } from "@/components/Hero/Hero";
@@ -16,7 +15,6 @@ export default function HomePage() {
   return (
     <>
       <StarField />
-      <Fracture />
       <Zombie />
       <div className={styles.page}>
         <Navbar />
