@@ -1,0 +1,17 @@
+/* Pinned to the viewport, centered — behind everything. Opacity and
+   --drift are set directly by Fracture.tsx on every scroll frame, not by a
+   CSS transition, so it tracks scroll position continuously rather than
+   snapping on/off. The 0 here is just the pre-hydration fallback. */
+.fracture {
+  --drift: 0px;
+
+  position: fixed;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, calc(-50% + var(--drift)));
+  width: clamp(9rem, 15vw, 14rem);
+  height: auto;
+  opacity: 0;
+  pointer-events: none;
+}

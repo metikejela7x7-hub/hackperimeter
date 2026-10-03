@@ -41,7 +41,10 @@ export function Footer() {
         </div>
 
         <div className={styles.bottom}>
-          <p>© 2026 HackPerimeter. The first-ever Perimeter College hackathon.</p>
+          <p>
+            © 2026 HackPerimeter. Rising Tech Society presents the first-ever hackathon to hit
+            Georgia State University&apos;s Perimeter College.
+          </p>
           <a className={styles.link} href="#top">
             Back to top
           </a>
