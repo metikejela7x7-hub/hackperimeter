@@ -20,7 +20,7 @@ const plexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "HackPerimeter | Escape from Earth",
   description:
-    "The first-ever Perimeter College hackathon. Friday, November 6, 2026 at Jim Cherry Auditorium in Clarkston, GA. Teams of 2–4, $1,000 cash-prize pool. Winners are survivors.",
+    "The first-ever Perimeter College hackathon. Friday, November 13, 2026 at Jim Cherry Auditorium in Clarkston, GA. Teams of 2–4, $1,000 cash-prize pool. Winners are survivors.",
   openGraph: {
     title: "HackPerimeter | Escape from Earth",
     description: "Winners are survivors. Twelve hours. One escape.",

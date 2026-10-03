@@ -9,7 +9,7 @@ export const EVENT = {
   slogan: "Winners are survivors.",
   description:
     "HackPerimeter is the first-ever Perimeter College hackathon: twelve hours, teams of two to four, and one survival scenario.",
-  dateLabel: "Friday, November 6, 2026",
+  dateLabel: "Friday, November 13, 2026",
   timeLabel: "8:00 AM – 8:00 PM",
   durationLabel: "12 hours",
   venue: "Jim Cherry Auditorium",
@@ -19,11 +19,11 @@ export const EVENT = {
   prizeAmount: 1000,
   contactEmail: "risingtechsociety@gmail.com",
   /**
-   * Clarkston, GA is on Eastern Time; DST ends Nov 1, 2026, so Nov 6 is EST (UTC−5).
+   * Clarkston, GA is on Eastern Time; DST ends Nov 1, 2026, so Nov 13 is EST (UTC−5).
    * Fixed UTC instants keep the countdown identical for every viewer's timezone.
    */
-  startsAt: Date.UTC(2026, 10, 6, 13, 0, 0), // 8:00 AM EST
-  endsAt: Date.UTC(2026, 10, 7, 1, 0, 0), // 8:00 PM EST
+  startsAt: Date.UTC(2026, 10, 13, 13, 0, 0), // 8:00 AM EST
+  endsAt: Date.UTC(2026, 10, 14, 1, 0, 0), // 8:00 PM EST
 } as const;
 
 export const HOME_URL = "/";
@@ -126,7 +126,7 @@ export const FAQ: readonly FaqItem[] = [
     id: "when-where",
     question: "When and where does it happen?",
     answer:
-      "Friday, November 6, 2026, from 8:00 AM to 8:00 PM at the Jim Cherry Auditorium, 555 Indian Creek Drive, Clarkston, GA.",
+      "Friday, November 13, 2026, from 8:00 AM to 8:00 PM at the Jim Cherry Auditorium, 555 Indian Creek Drive, Clarkston, GA.",
   },
   {
     id: "teams",
