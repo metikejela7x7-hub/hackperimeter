@@ -18,7 +18,29 @@
   pointer-events: none;
 }
 
+.topHands {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 50%;
+  width: min(70vw, 76rem);
+  height: min(13.7vw, 14.75rem);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.topHand {
+  position: absolute;
+  top: 0;
+  display: block;
+  height: auto;
+  transform: translateX(-50%);
+  user-select: none;
+}
+
 .inner {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: var(--max);
   margin-inline: auto;

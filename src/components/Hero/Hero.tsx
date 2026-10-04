@@ -6,6 +6,16 @@ import { Moon } from "./Moon";
 import { OutbreakReadout } from "./OutbreakReadout";
 import styles from "./Hero.module.css";
 
+const TOP_HANDS = [
+  { src: "/images/hero-hands/hand-01.png", x: 7.14, width: 6.49 },
+  { src: "/images/hero-hands/hand-04.png", x: 21.43, width: 6.27 },
+  { src: "/images/hero-hands/hand-06.png", x: 35.71, width: 6.27 },
+  { src: "/images/hero-hands/hand-07.png", x: 50, width: 6.16 },
+  { src: "/images/hero-hands/hand-10.png", x: 64.29, width: 6.05 },
+  { src: "/images/hero-hands/hand-13.png", x: 78.57, width: 5.04 },
+  { src: "/images/hero-hands/hand-14.png", x: 92.86, width: 5.94 },
+];
+
 /** Decorative perimeter ring, rotating Earth mid-outbreak, its moon, orbits and a pulsing signal. */
 function OrbitGraphic() {
   return (
@@ -70,6 +80,19 @@ function OrbitGraphic() {
 export function Hero() {
   return (
     <section id="top" className={styles.hero} aria-labelledby="hero-title">
+      <div className={styles.topHands} aria-hidden="true">
+        {TOP_HANDS.map((hand) => (
+          <img
+            key={hand.src}
+            className={styles.topHand}
+            src={hand.src}
+            alt=""
+            draggable={false}
+            style={{ left: `${hand.x}%`, width: `${hand.width}%` }}
+          />
+        ))}
+      </div>
+
       {/* Solid discs behind the globe and the moon: the graphic is see-through,
           so without these the background stars would show through them. */}
       <svg className={`${styles.graphic} ${styles.globeBacking}`} viewBox="0 0 800 800" aria-hidden="true" focusable="false">
