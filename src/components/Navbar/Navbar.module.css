@@ -185,14 +185,15 @@
 
 /* ---------- Desktop ---------- */
 
-/* 82rem: below this the links, social icons and button run into the wordmark (keep in step with Navbar.tsx) */
-@media (min-width: 82rem) {
+/* 84rem: below this the links, social icons and button crowd the wordmark and each other (keep in step with Navbar.tsx) */
+@media (min-width: 84rem) {
   .toggle {
     display: none;
   }
 
   .nav {
     position: static;
+    flex: 1; /* fills the space beside the wordmark, so the links can sit in the middle of it */
     z-index: auto;
     flex-direction: row;
     align-items: center;
@@ -208,6 +209,7 @@
   .links {
     display: flex;
     gap: 1.25rem;
+    margin-inline: auto; /* centred between the wordmark and the social icons */
   }
 
   .link {

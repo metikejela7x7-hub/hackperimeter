@@ -7,7 +7,7 @@ import { SocialLinks } from "@/components/SocialLinks/SocialLinks";
 import styles from "./Navbar.module.css";
 
 // Full link bar only where it fits beside the wordmark; narrower windows get the menu button.
-const DESKTOP_QUERY = "(min-width: 82rem)"; // keep in step with Navbar.module.css
+const DESKTOP_QUERY = "(min-width: 84rem)"; // keep in step with Navbar.module.css
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
