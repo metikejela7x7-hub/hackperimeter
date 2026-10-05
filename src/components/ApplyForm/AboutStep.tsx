@@ -21,7 +21,6 @@ export function AboutStep({ data, errors, onChange, onBlur }: StepProps) {
         <TextField
           name="email"
           label="Personal email"
-          hint="School inboxes often block us."
           type="email"
           inputMode="email"
           autoComplete="email"
