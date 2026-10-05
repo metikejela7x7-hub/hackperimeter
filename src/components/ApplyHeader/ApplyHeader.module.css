@@ -36,7 +36,7 @@
 
 .wordmark span {
   font-weight: 400;
-  color: var(--text-muted);
+  color: var(--amber);
 }
 
 .back {
