@@ -3,10 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { APPLY_URL, NAV_LINKS } from "@/data/event";
 import { Button } from "@/components/Button/Button";
+import { SocialLinks } from "@/components/SocialLinks/SocialLinks";
 import styles from "./Navbar.module.css";
 
 // Full link bar only where it fits beside the wordmark; narrower windows get the menu button.
-const DESKTOP_QUERY = "(min-width: 68rem)"; // keep in step with Navbar.module.css
+const DESKTOP_QUERY = "(min-width: 82rem)"; // keep in step with Navbar.module.css
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
@@ -151,6 +152,7 @@ export function Navbar() {
               </li>
             ))}
           </ul>
+          <SocialLinks />
           <div className={styles.cta}>
             <Button href={APPLY_URL} onClick={() => close()}>
               Apply to survive

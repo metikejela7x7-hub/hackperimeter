@@ -1,0 +1,48 @@
+.socials {
+  display: flex;
+  gap: 0.25rem;
+}
+
+/* Each icon wears its brand's own colour (set per link as --brand). */
+.social {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  color: var(--brand, var(--text-muted));
+  transition:
+    transform 0.2s var(--ease),
+    filter 0.2s;
+}
+
+.social svg {
+  width: 1.9rem;
+  height: 1.9rem;
+}
+
+.social:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.3);
+}
+
+/* Footer: larger icons with more room between them. */
+.footer {
+  gap: 1.25rem;
+  margin-left: -0.55rem; /* the first icon lines up with the left edge of the content above it */
+}
+
+.footer .social {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+.footer .social svg {
+  width: 2.4rem;
+  height: 2.4rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social:hover {
+    transform: none;
+  }
+}

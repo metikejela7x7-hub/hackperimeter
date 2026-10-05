@@ -37,6 +37,28 @@ export const NAV_LINKS = [
   { href: "#faq", label: "FAQ" },
 ] as const;
 
+/** Rising Tech Society's channels, shown in the header and footer in this order, in each brand's colour. */
+export const SOCIAL_LINKS = [
+  {
+    id: "discord",
+    label: "Discord",
+    href: "https://discord.com/invite/MxZrAQRBMP",
+    color: "#5865f2",
+  },
+  {
+    id: "instagram",
+    label: "Instagram",
+    href: "https://www.instagram.com/rts_gsupc/",
+    color: "#e4405f",
+  },
+  {
+    id: "linkedin",
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/company/rising-tech-society",
+    color: "#0a66c2",
+  },
+] as const;
+
 export const SCHEDULE_NOTE =
   "Preliminary schedule. Times may shift; the final run of show will be confirmed before the event.";
 

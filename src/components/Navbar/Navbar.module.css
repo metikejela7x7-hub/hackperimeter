@@ -185,8 +185,8 @@
 
 /* ---------- Desktop ---------- */
 
-/* 68rem: below this the links and the wordmark run into each other (keep in step with Navbar.tsx) */
-@media (min-width: 68rem) {
+/* 82rem: below this the links, social icons and button run into the wordmark (keep in step with Navbar.tsx) */
+@media (min-width: 82rem) {
   .toggle {
     display: none;
   }
@@ -197,7 +197,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: flex-end;
-    gap: 2rem;
+    gap: 1.5rem;
     padding: 0;
     background: none;
     visibility: visible;
@@ -207,7 +207,7 @@
 
   .links {
     display: flex;
-    gap: 1.75rem;
+    gap: 1.25rem;
   }
 
   .link {

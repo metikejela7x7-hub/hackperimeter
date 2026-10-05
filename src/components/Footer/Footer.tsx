@@ -1,5 +1,6 @@
 import { APPLY_URL, EVENT, NAV_LINKS } from "@/data/event";
 import { Button } from "@/components/Button/Button";
+import { SocialLinks } from "@/components/SocialLinks/SocialLinks";
 import styles from "./Footer.module.css";
 
 export function Footer() {
@@ -13,6 +14,7 @@ export function Footer() {
             </p>
             <p className={styles.slogan}>{EVENT.slogan}</p>
             <Button href={APPLY_URL}>Apply to survive</Button>
+            <SocialLinks variant="footer" />
           </div>
 
           <nav className={styles.col} aria-label="Footer">
