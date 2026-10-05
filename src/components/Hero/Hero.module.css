@@ -24,7 +24,7 @@
   top: 0;
   left: 50%;
   width: min(70vw, 76rem);
-  height: min(13.7vw, 14.75rem);
+  height: min(10.3vw, 11.1rem);
   transform: translateX(-50%);
   pointer-events: none;
 }

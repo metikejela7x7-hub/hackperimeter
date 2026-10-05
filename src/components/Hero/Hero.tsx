@@ -7,13 +7,13 @@ import { OutbreakReadout } from "./OutbreakReadout";
 import styles from "./Hero.module.css";
 
 const TOP_HANDS = [
-  { src: "/images/hero-hands/hand-01.png", x: 7.14, width: 6.49 },
-  { src: "/images/hero-hands/hand-04.png", x: 21.43, width: 6.27 },
-  { src: "/images/hero-hands/hand-06.png", x: 35.71, width: 6.27 },
-  { src: "/images/hero-hands/hand-07.png", x: 50, width: 6.16 },
-  { src: "/images/hero-hands/hand-10.png", x: 64.29, width: 6.05 },
-  { src: "/images/hero-hands/hand-13.png", x: 78.57, width: 5.04 },
-  { src: "/images/hero-hands/hand-14.png", x: 92.86, width: 5.94 },
+  { src: "/images/hero-hands/hand-01.png", x: 7.14, width: 4.87 },
+  { src: "/images/hero-hands/hand-04.png", x: 21.43, width: 4.7 },
+  { src: "/images/hero-hands/hand-06.png", x: 35.71, width: 4.7 },
+  { src: "/images/hero-hands/hand-07.png", x: 50, width: 4.62 },
+  { src: "/images/hero-hands/hand-10.png", x: 64.29, width: 4.54 },
+  { src: "/images/hero-hands/hand-13.png", x: 78.57, width: 3.78 },
+  { src: "/images/hero-hands/hand-14.png", x: 92.86, width: 4.46 },
 ];
 
 /** Decorative perimeter ring, rotating Earth mid-outbreak, its moon, orbits and a pulsing signal. */
