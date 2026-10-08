@@ -20,9 +20,15 @@ function Logo({ partner }: { partner: Partner }) {
     return <span className={styles.pending} role="img" aria-label={`${partner.name} — logo coming soon`} />;
   }
 
+  const imgClass = partner.iconOnly
+    ? styles.iconImg
+    : partner.stacked
+      ? `${styles.logoImg} ${styles.stackedImg}`
+      : styles.logoImg;
+
   const img = (
     <img
-      className={partner.iconOnly ? styles.iconImg : styles.logoImg}
+      className={imgClass}
       src={partner.logo}
       alt={partner.iconOnly ? "" : partner.name}
       loading="lazy"
@@ -42,6 +48,22 @@ function Logo({ partner }: { partner: Partner }) {
   }
 
   return img;
+}
+
+/** A logo, wrapped in a link to the partner's site when it has one. */
+function PartnerLogo({ partner }: { partner: Partner }) {
+  if (!partner.url) return <Logo partner={partner} />;
+  return (
+    <a
+      className={styles.logoLink}
+      href={partner.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={partner.name}
+    >
+      <Logo partner={partner} />
+    </a>
+  );
 }
 
 /**
@@ -66,19 +88,10 @@ export function Partners() {
           <ul ref={logos.ref} className={`${styles.logos} reveal-group`} data-visible={logos.visible}>
             {PARTNERS.map((partner, i) => (
               <li key={partner.name} className={styles.logoItem} style={{ "--i": i } as React.CSSProperties}>
-                {partner.url ? (
-                  <a
-                    className={styles.logoLink}
-                    href={partner.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={partner.name}
-                  >
-                    <Logo partner={partner} />
-                  </a>
-                ) : (
-                  <Logo partner={partner} />
-                )}
+                <div className={styles.stack}>
+                  <PartnerLogo partner={partner} />
+                  {partner.below && <PartnerLogo partner={partner.below} />}
+                </div>
               </li>
             ))}
           </ul>

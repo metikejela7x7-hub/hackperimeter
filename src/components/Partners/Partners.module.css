@@ -22,7 +22,7 @@
   gap: clamp(2.5rem, 5vw, 3.5rem);
 }
 
-/* Logos: one evenly-spaced row on desktop, a 2x2 grid on small screens. */
+/* Logos: a 2x2 grid on phones and tablets, one evenly-spaced row on wide screens. */
 .logos {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -33,10 +33,15 @@
 
 @media (min-width: 48rem) {
   .logos {
+    gap: 3rem 2rem;
+  }
+}
+
+@media (min-width: 72rem) {
+  .logos {
     display: flex;
-    /* nowrap is load-bearing: all four logos' widths + gaps are sized (below)
-       to always fit one line at this section's max width, so this never
-       wraps a logo onto its own row the way `wrap` did. */
+    /* nowrap is load-bearing: at this width every logo's size and gap (below)
+       fits on one line, and a wrapped row would strand a logo on its own. */
     flex-wrap: nowrap;
     justify-content: center;
     gap: clamp(2rem, 4vw, 4.5rem);
@@ -47,6 +52,13 @@
   display: grid;
   place-items: center;
   min-width: 0;
+}
+
+/* A logo with another one directly beneath it (the Institute, with Accenture below), the two lined up in one column. */
+.stack {
+  display: grid;
+  justify-items: center;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
 }
 
 .logoLink {
@@ -67,7 +79,7 @@
   display: block;
   height: clamp(70px, 19vw, 100px);
   width: auto;
-  max-width: 18rem;
+  max-width: min(100%, 18rem);
   object-fit: contain;
   opacity: 0.94;
   transition:
@@ -78,6 +90,17 @@
 @media (min-width: 48rem) {
   .logoImg {
     height: clamp(90px, 7vw, 128px);
+  }
+}
+
+/* A stacked mark (symbol above its lettering) is nearly square, so it gets more height to keep its lettering readable. */
+.stackedImg {
+  height: clamp(120px, 32vw, 160px);
+}
+
+@media (min-width: 48rem) {
+  .stackedImg {
+    height: clamp(150px, 11.5vw, 214px);
   }
 }
 
