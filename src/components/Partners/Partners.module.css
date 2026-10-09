@@ -22,7 +22,10 @@
   gap: clamp(2.5rem, 5vw, 3.5rem);
 }
 
-/* Logos: a 2x2 grid on phones and tablets, one evenly-spaced row on wide screens. */
+/*
+ * Logos sit on a grid so every row and column lines up: four across on wide
+ * screens, two across on narrower ones. Each row fills left to right.
+ */
 .logos {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -39,12 +42,10 @@
 
 @media (min-width: 72rem) {
   .logos {
-    display: flex;
-    /* nowrap is load-bearing: at this width every logo's size and gap (below)
-       fits on one line, and a wrapped row would strand a logo on its own. */
-    flex-wrap: nowrap;
-    justify-content: center;
-    gap: clamp(2rem, 4vw, 4.5rem);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
   }
 }
 
@@ -52,13 +53,6 @@
   display: grid;
   place-items: center;
   min-width: 0;
-}
-
-/* A logo with another one directly beneath it (the Institute, with Accenture below), the two lined up in one column. */
-.stack {
-  display: grid;
-  justify-items: center;
-  gap: clamp(1.5rem, 3vw, 2.5rem);
 }
 
 .logoLink {

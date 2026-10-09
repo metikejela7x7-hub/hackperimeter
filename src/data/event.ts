@@ -123,21 +123,21 @@ export interface Partner {
   iconOnly?: boolean;
   /** True when `logo` is a tall, stacked mark (symbol above its lettering), shown larger so the lettering stays readable beside the wide logos. */
   stacked?: boolean;
-  /** Another logo shown directly beneath this one, in the same column. */
-  below?: Partner;
   url?: string;
 }
 
+/**
+ * Laid out four across, so the order matters: the first row is the Institute,
+ * IBM, Zoku and DUWUN, and the second row sits under it, left to right
+ * (Accenture under the Institute, Sarah Donuts under IBM).
+ */
 export const PARTNERS: readonly Partner[] = [
-  {
-    name: "Entrepreneurship & Innovation Institute",
-    logo: "/images/eii-logo.png",
-    stacked: true,
-    below: { name: "Accenture", logo: "/images/accenture-logo.png" },
-  },
+  { name: "Entrepreneurship & Innovation Institute", logo: "/images/eii-logo.png", stacked: true },
   { name: "IBM", logo: "/images/ibm-logo.png" },
   { name: "Zoku", logo: "/images/zoku-logo.png" },
   { name: "DUWUN", logo: "/images/duwun-logo.png", iconOnly: true },
+  { name: "Accenture", logo: "/images/accenture-logo.png" },
+  { name: "Sarah Donuts", logo: "/images/sarah-donuts-logo.png" },
 ];
 
 export interface FaqItem {

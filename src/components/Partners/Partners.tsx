@@ -88,10 +88,7 @@ export function Partners() {
           <ul ref={logos.ref} className={`${styles.logos} reveal-group`} data-visible={logos.visible}>
             {PARTNERS.map((partner, i) => (
               <li key={partner.name} className={styles.logoItem} style={{ "--i": i } as React.CSSProperties}>
-                <div className={styles.stack}>
-                  <PartnerLogo partner={partner} />
-                  {partner.below && <PartnerLogo partner={partner.below} />}
-                </div>
+                <PartnerLogo partner={partner} />
               </li>
             ))}
           </ul>
