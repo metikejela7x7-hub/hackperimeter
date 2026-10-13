@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { googleCalendarUrl, outlookCalendarUrl } from "@/data/calendar";
 import { EVENT } from "@/data/event";
 import { Button } from "@/components/Button/Button";
 import styles from "./Confirmation.module.css";
@@ -49,6 +50,31 @@ function ShareWithTeammates() {
       <p className="sr-only" role="status">
         {copied ? "Link copied" : ""}
       </p>
+    </div>
+  );
+}
+
+/** Save-the-date links: Google, Outlook, and an .ics file for Apple Calendar and others. */
+function AddToCalendar() {
+  const site = window.location.origin;
+  const links = [
+    { label: "Google", href: googleCalendarUrl(site) },
+    { label: "Outlook", href: outlookCalendarUrl(site) },
+    { label: "Apple / other", href: "/api/calendar" },
+  ];
+  return (
+    <div className={styles.calendar}>
+      <span className={styles.calendarLabel}>Add to calendar</span>
+      {links.map((link) => (
+        <a
+          key={link.label}
+          className={styles.calendarLink}
+          href={link.href}
+          {...(link.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+        >
+          {link.label}
+        </a>
+      ))}
     </div>
   );
 }
@@ -124,6 +150,8 @@ export function Confirmation({ name, email, isTeam }: ConfirmationProps) {
           </dd>
         </div>
       </dl>
+
+      <AddToCalendar />
 
       <Button href="../" variant="ghost" size="lg">
         Back to homepage

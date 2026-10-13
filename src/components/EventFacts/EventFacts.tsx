@@ -46,6 +46,12 @@ export function EventFacts() {
                 <span className={styles.statValue}>{EVENT.teamSize}</span>
                 <span className={styles.numLabel}>Teammates per crew</span>
               </p>
+              <p className={styles.stat}>
+                <span className={styles.statValue}>
+                  <Counter value={EVENT.expectedParticipants} suffix="+" />
+                </span>
+                <span className={styles.numLabel}>Hackers expected</span>
+              </p>
             </div>
           </div>
 

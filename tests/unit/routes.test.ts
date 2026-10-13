@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
   getAdmin: vi.fn(),
   withinRateLimit: vi.fn(),
   notifyNewApplication: vi.fn(),
+  notifyTeamMatched: vi.fn(),
   postToDiscord: vi.fn(),
   after: vi.fn(),
 }));
@@ -33,7 +34,10 @@ vi.mock("@/server/rateLimit", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/server/rateLimit")>()),
   withinRateLimit: mocks.withinRateLimit,
 }));
-vi.mock("@/server/notifications", () => ({ notifyNewApplication: mocks.notifyNewApplication }));
+vi.mock("@/server/notifications", () => ({
+  notifyNewApplication: mocks.notifyNewApplication,
+  notifyTeamMatched: mocks.notifyTeamMatched,
+}));
 vi.mock("@/server/discord", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/server/discord")>()),
   postToDiscord: mocks.postToDiscord,
@@ -207,6 +211,27 @@ describe("admin routes", () => {
     expect(mocks.updateTeams.mock.calls[0][0].map((u: { id: string }) => u.id).sort()).toEqual(
       [sam.id, sara.id].sort(),
     );
+  });
+
+  it("emails the new team only when asked", async () => {
+    const sam = record({ fullName: "Sam" });
+    const sara = record({ fullName: "Sara" });
+    mocks.listApplications.mockResolvedValue([sam, sara]);
+    mocks.updateTeams.mockImplementation(async () => [
+      { ...sam, teamMode: "team", teammates: [{ name: "Sara", email: sara.email }] },
+      { ...sara, teamMode: "team", teammates: [{ name: "Sam", email: sam.email }] },
+    ]);
+
+    const quiet = await teamEdit(sam.id, { action: "link", withId: sara.id });
+    expect((await quiet.json()).notified).toBe(0);
+    expect(mocks.after).not.toHaveBeenCalled();
+
+    const loud = await teamEdit(sam.id, { action: "link", withId: sara.id, notify: true });
+    expect((await loud.json()).notified).toBe(2);
+    expect(mocks.after).toHaveBeenCalledOnce();
+    await mocks.after.mock.calls[0][0]();
+    const [team] = mocks.notifyTeamMatched.mock.calls[0];
+    expect(team.members.map((m: { application: { fullName: string } }) => m.application.fullName)).toEqual(["Sam", "Sara"]);
   });
 
   it("explains team edits that can't be done", async () => {

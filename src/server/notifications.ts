@@ -1,7 +1,8 @@
 import { EXPERIENCE_LEVELS, labelFor } from "@/data/apply";
 import { type ApplicationRecord, countApplications } from "./applications";
 import { AMBER, embedValue, postToDiscord } from "./discord";
-import { confirmationEmail, sendEmail } from "./email";
+import type { Team } from "@/components/Admin/teams";
+import { confirmationEmail, sendEmail, teamMatchedEmail } from "./email";
 import { sendTeammateInvites } from "./invites";
 
 /** Runs after a new application is saved: applicant confirmation, teammate invites, exec-server ping. */
@@ -39,4 +40,22 @@ export async function notifyNewApplication(application: ApplicationRecord): Prom
       ],
     }),
   ]);
+}
+
+/** Tells everyone on a team, by name only, who they've been teamed up with. */
+export async function notifyTeamMatched(team: Team): Promise<void> {
+  const members = team.members.map((m) => m.application);
+  await Promise.all(
+    members.map((member) =>
+      sendEmail(
+        teamMatchedEmail({
+          to: member.email,
+          fullName: member.fullName,
+          teammateNames: members.filter((m) => m.id !== member.id).map((m) => m.fullName),
+          teamName: team.name,
+          accepted: member.status === "accepted",
+        }),
+      ),
+    ),
+  );
 }

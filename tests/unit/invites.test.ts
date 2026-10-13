@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { teammateInviteEmail } from "@/server/email";
+import { teamMatchedEmail, teammateInviteEmail } from "@/server/email";
 import { record } from "./fixtures";
 
 /** A tiny stand-in for the two Supabase queries the invite code makes. */
@@ -143,5 +143,32 @@ describe("teammateInviteEmail", () => {
     expect(email.html).not.toContain("<script>");
     expect(email.html).toContain("&lt;b&gt;Ada&lt;/b&gt;");
     expect(email.text).toContain("ignore this email");
+  });
+});
+
+describe("teamMatchedEmail", () => {
+  it("names the teammates without sharing their contact details", () => {
+    const email = teamMatchedEmail({
+      to: "sam@example.com",
+      fullName: "Sam Example",
+      teammateNames: ["Sara Example", "Kai Example"],
+      teamName: "Night Owls",
+      accepted: false,
+    });
+    expect(email.subject).toBe("You've got a HackPerimeter team!");
+    expect(email.text).toContain("Hi Sam,");
+    expect(email.text).toContain("You're teamed up with Sara Example and Kai Example.");
+    expect(email.text).toContain('Your team is called "Night Owls".');
+    expect(email.text).toContain("doesn't change your application");
+    expect(email.text + email.html).not.toMatch(/@example\.com/);
+  });
+
+  it("only gives the Discord invite to accepted applicants", () => {
+    vi.stubEnv("DISCORD_INVITE_URL", "https://discord.gg/example");
+    const base = { to: "sam@example.com", fullName: "Sam", teammateNames: ["Sara"], teamName: null };
+    expect(teamMatchedEmail({ ...base, accepted: true }).text).toContain("https://discord.gg/example");
+    const pending = teamMatchedEmail({ ...base, accepted: false }).text;
+    expect(pending).not.toContain("discord.gg");
+    expect(pending).toContain("Once you're accepted");
   });
 });

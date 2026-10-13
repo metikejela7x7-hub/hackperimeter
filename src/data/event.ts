@@ -15,6 +15,8 @@ export const EVENT = {
   venue: "Jim Cherry Auditorium",
   address: "555 Indian Creek Drive, Clarkston, GA",
   teamSize: "2–4",
+  /** Shown on the homepage as "50+ hackers expected". An estimate; update as applications come in. */
+  expectedParticipants: 50,
   prize: "$1,000",
   prizeAmount: 1000,
   contactEmail: "risingtechsociety@gmail.com",

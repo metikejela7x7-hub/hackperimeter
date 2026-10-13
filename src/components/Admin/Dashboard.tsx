@@ -241,13 +241,17 @@ export function Dashboard({ adminEmail, applications: initial }: DashboardProps)
       const body = (await response.json().catch(() => null)) as {
         error?: string;
         applications?: ApplicationRecord[];
+        notified?: number;
       } | null;
       if (!response.ok || !body?.applications) {
         throw new Error(body?.error ?? "Couldn't save that team change.");
       }
       const changed = new Map(body.applications.map((a) => [a.id, a]));
       setApplications((list) => list.map((a) => changed.get(a.id) ?? a));
-      setMessage({ tone: "ok", text: done });
+      const emailed = body.notified
+        ? ` Emailed ${body.notified} ${body.notified === 1 ? "person" : "people"} their team.`
+        : "";
+      setMessage({ tone: "ok", text: `${done}${emailed}` });
       return true;
     } catch (error) {
       setMessage({

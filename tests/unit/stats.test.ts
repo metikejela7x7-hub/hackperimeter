@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { EVENT } from "@/data/event";
 import { daysUntilEvent, recapEmbed } from "@/server/recap";
 import { computeStats } from "@/server/stats";
 import { record } from "./fixtures";
@@ -33,14 +34,18 @@ describe("computeStats", () => {
   it("builds a Discord recap", () => {
     const embed = recapEmbed(stats, NOW);
     expect(embed.title).toBe("Daily recap: 2 new applications");
-    expect(embed.description).toContain("35 days until HackPerimeter");
+    expect(embed.description).toContain(`${daysUntilEvent(NOW)} days until HackPerimeter`);
     expect(embed.fields?.every((field) => field.value.length > 0 && field.value.length <= 1024)).toBe(true);
   });
 });
 
 describe("daysUntilEvent", () => {
+  it("counts whole days before the event", () => {
+    expect(daysUntilEvent(new Date(EVENT.startsAt - 35 * 24 * 60 * 60 * 1000))).toBe(35);
+  });
+
   it("is zero on and after the event", () => {
-    expect(daysUntilEvent(new Date("2026-11-06T15:00:00.000Z"))).toBe(0);
-    expect(daysUntilEvent(new Date("2026-12-01T00:00:00.000Z"))).toBe(0);
+    expect(daysUntilEvent(new Date(EVENT.startsAt + 2 * 60 * 60 * 1000))).toBe(0);
+    expect(daysUntilEvent(new Date(EVENT.endsAt + 30 * 24 * 60 * 60 * 1000))).toBe(0);
   });
 });

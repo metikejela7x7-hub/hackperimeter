@@ -15,7 +15,7 @@ export interface TeamUpdate {
 }
 
 export type TeamEdit =
-  | { action: "link"; withId: string }
+  | { action: "link"; withId: string; notify?: boolean }
   | { action: "unlink" }
   | { action: "rename"; teamName: string };
 
@@ -129,7 +129,7 @@ export function parseTeamEdit(body: unknown): TeamEdit | null {
   if (!body || typeof body !== "object") return null;
   const input = body as Record<string, unknown>;
   if (input.action === "link" && typeof input.withId === "string") {
-    return { action: "link", withId: input.withId };
+    return { action: "link", withId: input.withId, notify: input.notify === true };
   }
   if (input.action === "unlink") return { action: "unlink" };
   if (input.action === "rename" && typeof input.teamName === "string") {

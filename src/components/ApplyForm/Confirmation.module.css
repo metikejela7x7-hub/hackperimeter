@@ -198,3 +198,32 @@
   outline: 2px solid var(--text);
   outline-offset: 2px;
 }
+
+/* ---------- Save the date ---------- */
+
+.calendar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  width: 100%;
+}
+
+.calendarLabel {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.calendarLink {
+  color: var(--amber);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+.calendarLink:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}

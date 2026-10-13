@@ -115,6 +115,7 @@ function TeamName({ team, busy, onEdit }: { team: Team; busy: boolean; onEdit: O
 /** Teams matched from applications, plus everyone still looking for one. Organizers can edit both. */
 export function TeamsView({ applications, busy, onEdit }: TeamsViewProps) {
   const { teams, lookingForTeam } = useMemo(() => groupTeams(applications), [applications]);
+  const [notify, setNotify] = useState(true);
 
   // Each applicant's team label, for the pickers.
   const teamNames = useMemo(() => {
@@ -158,6 +159,14 @@ export function TeamsView({ applications, busy, onEdit }: TeamsViewProps) {
           team name links that person, so double-check them. Team names are optional: add one
           whenever the team tells you.
         </p>
+        <label className={styles.notifyToggle}>
+          <input
+            type="checkbox"
+            checked={notify}
+            onChange={(event) => setNotify(event.target.checked)}
+          />
+          Email people when I team them up (teammates&rsquo; names only, no contact details)
+        </label>
         {teams.length === 0 ? (
           <p className={styles.muted}>No teams yet.</p>
         ) : (
@@ -224,7 +233,7 @@ export function TeamsView({ applications, busy, onEdit }: TeamsViewProps) {
                     onPick={(person) =>
                       void onEdit(
                         person,
-                        { action: "link", withId: team.members[0].application.id },
+                        { action: "link", withId: team.members[0].application.id, notify },
                         `${person.fullName} joined ${team.name ? `“${team.name}”` : "the team"}.`,
                       )
                     }
@@ -266,7 +275,7 @@ export function TeamsView({ applications, busy, onEdit }: TeamsViewProps) {
                   onPick={(person) =>
                     void onEdit(
                       application,
-                      { action: "link", withId: person.id },
+                      { action: "link", withId: person.id, notify },
                       `${application.fullName} teamed up with ${person.fullName}.`,
                     )
                   }
