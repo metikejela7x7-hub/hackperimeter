@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PARTNERS, type Partner } from "@/data/event";
 import { SectionHeading } from "@/components/SectionHeading/SectionHeading";
 import { useReveal } from "@/hooks/useReveal";
@@ -15,6 +15,14 @@ import styles from "./Partners.module.css";
  */
 function Logo({ partner }: { partner: Partner }) {
   const [broken, setBroken] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  // A missing file can fail before React attaches onError (the server-rendered
+  // <img> starts loading first), so also check once on mount.
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img && img.complete && img.naturalWidth === 0) setBroken(true);
+  }, []);
 
   if (broken) {
     return <span className={styles.pending} role="img" aria-label={`${partner.name} — logo coming soon`} />;
@@ -28,6 +36,7 @@ function Logo({ partner }: { partner: Partner }) {
 
   const img = (
     <img
+      ref={imgRef}
       className={imgClass}
       src={partner.logo}
       alt={partner.iconOnly ? "" : partner.name}
