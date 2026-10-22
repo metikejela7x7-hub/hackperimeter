@@ -34,6 +34,11 @@
   gap: 1.75rem 1.5rem;
 }
 
+/* A lone logo on the last row sits centered across both columns. */
+.logoItem:last-child:nth-child(2n + 1) {
+  grid-column: 1 / -1;
+}
+
 @media (min-width: 48rem) {
   .logos {
     gap: 3rem 2rem;
@@ -46,6 +51,15 @@
     width: 100%;
     max-width: 80rem;
     margin-inline: auto;
+  }
+
+  /* Four across: only a logo alone on the last row is centered, not one of a pair or trio. */
+  .logoItem:last-child:nth-child(2n + 1) {
+    grid-column: auto;
+  }
+
+  .logoItem:last-child:nth-child(4n + 1) {
+    grid-column: 1 / -1;
   }
 }
 
