@@ -103,7 +103,7 @@ describe("calendar links", () => {
     const lines = ics.split("\r\n");
     expect(lines[0]).toBe("BEGIN:VCALENDAR");
     expect(ics).toContain("DTSTART:20261113T130000Z");
-    expect(ics).toContain("LOCATION:Jim Cherry Auditorium\\, 555 Indian Creek Drive\\, Clarkston\\, GA");
+    expect(ics).toContain("LOCATION:CH 1100 Auditorium\\, 555 Indian Creek Drive\\, Clarkston\\, GA");
     expect(lines.every((line) => line.length <= 75)).toBe(true);
     expect(ics.endsWith("END:VCALENDAR\r\n")).toBe(true);
   });

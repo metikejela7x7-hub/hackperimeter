@@ -50,7 +50,7 @@ export function EventFacts() {
                 <span className={styles.statValue}>
                   <Counter value={EVENT.expectedParticipants} suffix="+" />
                 </span>
-                <span className={styles.numLabel}>Participants expected</span>
+                <span className={styles.numLabel}>Participants</span>
               </p>
             </div>
           </div>

@@ -12,10 +12,10 @@ export const EVENT = {
   dateLabel: "Friday, November 13, 2026",
   timeLabel: "8:00 AM – 8:00 PM",
   durationLabel: "12 hours",
-  venue: "Jim Cherry Auditorium",
+  venue: "CH 1100 Auditorium",
   address: "555 Indian Creek Drive, Clarkston, GA",
   teamSize: "2–4",
-  /** Shown on the homepage as "100+ participants expected". An estimate; update as applications come in. */
+  /** Shown on the homepage as "100+ Participants". An estimate; update as applications come in. */
   expectedParticipants: 100,
   prize: "$1,000",
   prizeAmount: 1000,
@@ -163,7 +163,7 @@ export const FAQ: readonly FaqItem[] = [
     id: "when-where",
     question: "When and where does it happen?",
     answer:
-      "Friday, November 13, 2026, from 8:00 AM to 8:00 PM at the Jim Cherry Auditorium, 555 Indian Creek Drive, Clarkston, GA.",
+      "Friday, November 13, 2026, from 8:00 AM to 8:00 PM at CH 1100 Auditorium, 555 Indian Creek Drive, Clarkston, GA.",
   },
   {
     id: "teams",
