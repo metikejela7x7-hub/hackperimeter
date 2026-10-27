@@ -36,7 +36,7 @@ export function Schedule() {
               <time className={styles.time}>{item.time}</time>
               <div className={styles.text}>
                 <h3 className={styles.title}>{item.title}</h3>
-                <p className={styles.detail}>{item.detail}</p>
+                {item.detail && <p className={styles.detail}>{item.detail}</p>}
               </div>
             </li>
           ))}

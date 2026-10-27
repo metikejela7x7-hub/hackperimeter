@@ -10,9 +10,9 @@ export const EVENT = {
   description:
     "HackPerimeter is the first-ever Perimeter College hackathon: twelve hours, teams of two to four, and one survival scenario.",
   dateLabel: "Friday, November 13, 2026",
-  timeLabel: "8:00 AM – 8:00 PM",
+  timeLabel: "8:00 AM – 8:30 PM",
   durationLabel: "12 hours",
-  venue: "CH 1100 Auditorium",
+  venue: "CL Jim Cherry Auditorium",
   address: "555 Indian Creek Drive, Clarkston, GA",
   teamSize: "2–4",
   /** Shown on the homepage as "100+ Participants". An estimate; update as applications come in. */
@@ -25,7 +25,7 @@ export const EVENT = {
    * Fixed UTC instants keep the countdown identical for every viewer's timezone.
    */
   startsAt: Date.UTC(2026, 10, 13, 13, 0, 0), // 8:00 AM EST
-  endsAt: Date.UTC(2026, 10, 14, 1, 0, 0), // 8:00 PM EST
+  endsAt: Date.UTC(2026, 10, 14, 1, 30, 0), // 8:30 PM EST
 } as const;
 
 export const HOME_URL = "/";
@@ -67,7 +67,8 @@ export const SCHEDULE_NOTE =
 export interface ScheduleItem {
   time: string;
   title: string;
-  detail: string;
+  /** The small line under the title. Left out when the title says it all. */
+  detail?: string;
   /** Marks the moments that anchor the day (start, finish). */
   milestone?: boolean;
 }
@@ -76,41 +77,41 @@ export const SCHEDULE: readonly ScheduleItem[] = [
   {
     time: "8:00 AM",
     title: "Doors open",
-    detail: "Check in, find your crew, claim a station.",
     milestone: true,
+  },
+  {
+    time: "8:15 AM",
+    title: "Check in",
+    detail: "Check-in time for participants, volunteers, mentors and sponsors.",
   },
   {
     time: "9:00 AM",
     title: "Mission briefing",
-    detail: "The scenario is laid out and the rules of survival are set.",
+    detail:
+      "Your project isn't limited to the theme. Build whatever you'd like to fix about your campus, or anything education related.",
   },
   {
-    time: "9:30 AM",
-    title: "Build begins",
-    detail: "Clock is running. Teams design, code and iterate.",
+    time: "10:30 AM",
+    title: "Hacking begins",
+    detail: "Participants will be directed to the CL Building (Library, 3rd floor).",
   },
   {
-    time: "1:00 PM",
+    time: "1:30 PM",
     title: "Midpoint checkpoint",
-    detail: "Take stock of what you have and what you still need.",
-  },
-  {
-    time: "5:00 PM",
-    title: "Submissions lock",
-    detail: "Whatever is built is what gets judged.",
+    detail: "Lunch starts, and participants have to go back to CN Building.",
   },
   {
     time: "5:30 PM",
-    title: "Demos",
-    detail: "Teams present their work to the judges.",
+    title: "Presentation submission deadline",
+    detail: "Teams submit their final presentations using the link on Discord, under Forms.",
   },
   {
     time: "7:00 PM",
-    title: "Top-three interviews",
-    detail: "The three strongest teams sit down for on-site interviews.",
+    title: "Pitching starts",
+    detail: "Held at the CL Jim Cherry Auditorium. Each team gets a 1 minute 30 second pitch.",
   },
   {
-    time: "8:00 PM",
+    time: "8:30 PM",
     title: "Extraction",
     detail: "Winners announced. The perimeter closes.",
     milestone: true,
@@ -163,7 +164,7 @@ export const FAQ: readonly FaqItem[] = [
     id: "when-where",
     question: "When and where does it happen?",
     answer:
-      "Friday, November 13, 2026, from 8:00 AM to 8:00 PM at CH 1100 Auditorium, 555 Indian Creek Drive, Clarkston, GA.",
+      "Friday, November 13, 2026, from 8:00 AM to 8:30 PM at CL Jim Cherry Auditorium, 555 Indian Creek Drive, Clarkston, GA.",
   },
   {
     id: "teams",
