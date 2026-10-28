@@ -133,7 +133,7 @@ export interface Partner {
  * Laid out four across, so the order matters: the first row is the Institute,
  * IBM, Zoku and DUWUN, and the rows below sit under it, left to right
  * (Accenture under the Institute, Sarah Donuts under IBM, Refuge Coffee Co.
- * under Zoku, A Better Way PAC under DUWUN, then Major League Hacking on its own row).
+ * under Zoku, Resilience under DUWUN, then Major League Hacking on its own row).
  */
 export const PARTNERS: readonly Partner[] = [
   { name: "Entrepreneurship & Innovation Institute", logo: "/images/eii-logo.png" },
@@ -143,7 +143,7 @@ export const PARTNERS: readonly Partner[] = [
   { name: "Accenture", logo: "/images/accenture-logo.png" },
   { name: "Sarah Donuts", logo: "/images/sarah-donuts-logo.png" },
   { name: "Refuge Coffee Co.", logo: "/images/refuge-coffee-logo.png", stacked: true },
-  { name: "A Better Way PAC", logo: "/images/a-better-way-pac-logo.png", stacked: true },
+  { name: "Resilience", logo: "/images/resilience-logo.png", stacked: true },
   { name: "Major League Hacking", logo: "/images/mlh-logo.png" },
 ];
 
