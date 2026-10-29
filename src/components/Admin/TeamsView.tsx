@@ -1,7 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { APPLICATION_STATUSES, EXPERIENCE_LEVELS, INTERESTS, labelFor } from "@/data/apply";
+import {
+  APPLICATION_STATUSES,
+  EXPERIENCE_LEVELS,
+  INTERESTS,
+  labelFor,
+  type ApplicationStatus,
+} from "@/data/apply";
 import type { ApplicationRecord } from "@/server/applications";
 import styles from "./Admin.module.css";
 import { TEAM_NAME_MAX, type TeamEdit } from "./teamEdits";
@@ -17,6 +23,37 @@ interface TeamsViewProps {
   /** True while a team edit is saving. */
   busy: boolean;
   onEdit: OnEdit;
+  /** The application whose status is saving, if any. */
+  savingId: string | null;
+  onStatus: (application: ApplicationRecord, status: ApplicationStatus) => void;
+  onAcceptTeam: (members: readonly ApplicationRecord[], teamLabel: string) => void;
+}
+
+/** A member's review status, changeable right on the team card. */
+function StatusSelect({
+  application,
+  saving,
+  onStatus,
+}: {
+  application: ApplicationRecord;
+  saving: boolean;
+  onStatus: TeamsViewProps["onStatus"];
+}) {
+  return (
+    <select
+      className={styles.memberStatus}
+      aria-label={`Status for ${application.fullName}`}
+      value={application.status}
+      disabled={saving}
+      onChange={(event) => onStatus(application, event.target.value as ApplicationStatus)}
+    >
+      {APPLICATION_STATUSES.map(({ value, label }) => (
+        <option key={value} value={value}>
+          {label}
+        </option>
+      ))}
+    </select>
+  );
 }
 
 /** A dropdown of applicants; picking one runs `onPick` and resets. */
@@ -113,9 +150,65 @@ function TeamName({ team, busy, onEdit }: { team: Team; busy: boolean; onEdit: O
 }
 
 /** Teams matched from applications, plus everyone still looking for one. Organizers can edit both. */
-export function TeamsView({ applications, busy, onEdit }: TeamsViewProps) {
+export function TeamsView({
+  applications,
+  busy,
+  onEdit,
+  savingId,
+  onStatus,
+  onAcceptTeam,
+}: TeamsViewProps) {
   const { teams, lookingForTeam } = useMemo(() => groupTeams(applications), [applications]);
   const [notify, setNotify] = useState(true);
+  const [reminding, setReminding] = useState(false);
+  const [reminderStatus, setReminderStatus] = useState<{
+    tone: "ok" | "error";
+    text: string;
+  } | null>(null);
+  const notApplied = new Set(teams.flatMap((t) => t.missing.map((m) => m.email.toLowerCase())))
+    .size;
+
+  const remindTeammates = async () => {
+    if (
+      !window.confirm(
+        (notApplied === 1
+          ? "Email the 1 listed teammate who hasn't applied? "
+          : `Email the ${notApplied} listed teammates who haven't applied? `) +
+          "Anyone never invited gets the invite; everyone else gets one reminder. " +
+          "Nobody is ever reminded twice.",
+      )
+    ) {
+      return;
+    }
+    setReminding(true);
+    setReminderStatus(null);
+    try {
+      const response = await fetch("/api/admin/teammates/remind", { method: "POST" });
+      const body = (await response.json().catch(() => null)) as {
+        error?: string;
+        invited?: number;
+        reminded?: number;
+        skipped?: number;
+      } | null;
+      if (!response.ok || !body) throw new Error(body?.error ?? "Couldn't send the reminders.");
+      const parts = [
+        body.invited ? `${body.invited} invited` : "",
+        body.reminded ? `${body.reminded} reminded` : "",
+        body.skipped ? `${body.skipped} already reminded before (skipped)` : "",
+      ].filter(Boolean);
+      setReminderStatus({
+        tone: "ok",
+        text: parts.length ? `Done: ${parts.join(", ")}.` : "Nobody to email.",
+      });
+    } catch (error) {
+      setReminderStatus({
+        tone: "error",
+        text: error instanceof Error ? error.message : "Couldn't send the reminders.",
+      });
+    } finally {
+      setReminding(false);
+    }
+  };
 
   // Each applicant's team label, for the pickers.
   const teamNames = useMemo(() => {
@@ -167,6 +260,22 @@ export function TeamsView({ applications, busy, onEdit }: TeamsViewProps) {
           />
           Email people when I team them up (teammates&rsquo; names only, no contact details)
         </label>
+        <div className={styles.remindRow}>
+          <button
+            type="button"
+            className={styles.download}
+            disabled={reminding || notApplied === 0}
+            onClick={() => void remindTeammates()}
+          >
+            {reminding ? "Sending…" : `Remind teammates who haven't applied (${notApplied})`}
+          </button>
+          <span className={styles.muted}>Each address gets at most one reminder.</span>
+        </div>
+        {reminderStatus && (
+          <p className={styles.message} role="status" data-tone={reminderStatus.tone}>
+            {reminderStatus.text}
+          </p>
+        )}
         {teams.length === 0 ? (
           <p className={styles.muted}>No teams yet.</p>
         ) : (
@@ -184,6 +293,28 @@ export function TeamsView({ applications, busy, onEdit }: TeamsViewProps) {
                     {size > MAX_TEAM_SIZE && (
                       <span className={styles.flag}>Over {MAX_TEAM_SIZE} people</span>
                     )}
+                    {(() => {
+                      const toAccept = team.members.filter(
+                        (m) => m.application.status !== "accepted",
+                      ).length;
+                      return toAccept === 0 ? (
+                        <span className={styles.allAccepted}>All accepted</span>
+                      ) : (
+                        <button
+                          type="button"
+                          className={styles.acceptTeam}
+                          disabled={savingId !== null}
+                          onClick={() =>
+                            onAcceptTeam(
+                              team.members.map((m) => m.application),
+                              team.name ?? "Unnamed team",
+                            )
+                          }
+                        >
+                          Accept team ({toAccept})
+                        </button>
+                      );
+                    })()}
                   </div>
                   <ul className={styles.members}>
                     {team.members.map(({ application, matchedByName, alsoListedAs }) => (
@@ -197,7 +328,11 @@ export function TeamsView({ applications, busy, onEdit }: TeamsViewProps) {
                           <a href={`mailto:${application.email}`}>{application.email}</a>
                         </span>
                         <span className={styles.memberTags}>
-                          <span>{labelFor(APPLICATION_STATUSES, application.status)}</span>
+                          <StatusSelect
+                            application={application}
+                            saving={savingId === application.id}
+                            onStatus={onStatus}
+                          />
                           {matchedByName && <span className={styles.flag}>Name match</span>}
                           {alsoListedAs.length > 0 && (
                             <span title="A teammate listed this person under a different email">

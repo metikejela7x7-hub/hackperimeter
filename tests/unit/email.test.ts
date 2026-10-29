@@ -1,5 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { acceptanceEmail, confirmationEmail, escapeHtml } from "@/server/email";
+
+const send = vi.hoisted(() => vi.fn());
+vi.mock("resend", () => ({ Resend: class { emails = { send }; } }));
+
+const { acceptanceEmail, confirmationEmail, escapeHtml, sendEmail } = await import("@/server/email");
 
 afterEach(() => vi.unstubAllEnvs());
 
@@ -29,5 +33,21 @@ describe("emails", () => {
     expect(acceptanceEmail({ fullName: "Ada", email: "a@example.com" }).text).toContain(
       "We'll send the Discord invite",
     );
+  });
+
+  it("still sends the email if the attachment can't be fetched", async () => {
+    vi.stubEnv("RESEND_API_KEY", "re_test");
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    send.mockReset();
+    send.mockResolvedValueOnce({ error: { message: "could not fetch attachment" } });
+    send.mockResolvedValueOnce({ error: null });
+
+    const email = {
+      ...acceptanceEmail({ fullName: "Ada", email: "a@example.com" }),
+      attachments: [{ filename: "Agenda.pdf", path: "https://hackperimeter.com/agenda.pdf" }],
+    };
+    expect(await sendEmail(email)).toBe(true);
+    expect(send).toHaveBeenCalledTimes(2);
+    expect(send.mock.calls[1][0]).not.toHaveProperty("attachments");
   });
 });

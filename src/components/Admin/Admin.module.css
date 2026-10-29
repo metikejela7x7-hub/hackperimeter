@@ -548,3 +548,60 @@
   height: 1.1rem;
   accent-color: var(--amber);
 }
+
+.remindRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.remindRow button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------- Accepting from the Teams tab ---------- */
+
+.acceptTeam {
+  margin-left: auto;
+  padding: 0.35rem 0.7rem;
+  background: var(--amber);
+  border: 0;
+  color: var(--bg-deep);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.acceptTeam:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+
+.acceptTeam:focus-visible,
+.memberStatus:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+.allAccepted {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #5fbf77;
+}
+
+.memberStatus {
+  padding: 0.15rem 0.3rem;
+  background: var(--bg-deep);
+  color: var(--text);
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  font: inherit;
+  font-size: 0.8125rem;
+}

@@ -8,6 +8,8 @@ export interface Email {
   subject: string;
   text: string;
   html: string;
+  /** Files Resend fetches from a public URL and attaches. */
+  attachments?: { filename: string; path: string }[];
 }
 
 /**
@@ -21,7 +23,14 @@ export async function sendEmail(email: Email): Promise<boolean> {
     return false;
   }
   const from = optionalEnv("EMAIL_FROM") ?? `${EVENT.name} <onboarding@resend.dev>`;
-  const { error } = await new Resend(apiKey).emails.send({ from, replyTo: EVENT.contactEmail, ...email });
+  const resend = new Resend(apiKey);
+  let { error } = await resend.emails.send({ from, replyTo: EVENT.contactEmail, ...email });
+  if (error && email.attachments?.length) {
+    // An attachment Resend couldn't fetch shouldn't cost the person their email.
+    console.error(`[email] "${email.subject}" failed with attachments; retrying without`, error);
+    const { attachments: _skipped, ...plain } = email;
+    ({ error } = await resend.emails.send({ from, replyTo: EVENT.contactEmail, ...plain }));
+  }
   if (error) {
     console.error(`[email] failed to send "${email.subject}"`, error);
     return false;
@@ -109,10 +118,10 @@ export function acceptanceEmail(application: { fullName: string; email: string }
   const when = `${EVENT.dateLabel}, ${EVENT.timeLabel}`;
   const calendar = calendarLinks();
   const discordText = discord
-    ? `Join the ${EVENT.name} Discord now. Announcements, team-finding and day-of updates all happen there: ${discord}`
+    ? `Join the ${EVENT.name} Discord now. It's where you'll get announcements, schedule updates and answers from the organizers: ${discord}`
     : `We'll send the Discord invite and day-of details soon.`;
   const discordHtml = discord
-    ? `Join the ${escapeHtml(EVENT.name)} Discord now. Announcements, team-finding and day-of updates all happen there:<br><a href="${escapeHtml(discord)}" style="color:#b47a12">${escapeHtml(discord)}</a>`
+    ? `Join the ${escapeHtml(EVENT.name)} Discord now. It's where you'll get announcements, schedule updates and answers from the organizers:<br><a href="${escapeHtml(discord)}" style="color:#b47a12">${escapeHtml(discord)}</a>`
     : `We'll send the Discord invite and day-of details soon.`;
   return {
     to: application.email,
@@ -227,6 +236,7 @@ export function teamMatchedEmail(match: {
 
 /** The weekly countdown sent to accepted applicants (see reminders.ts). */
 export function weeklyReminderEmail(application: { fullName: string; email: string }, weeksLeft: number): Email {
+  if (weeksLeft === 2) return twoWeeksToGoEmail(application);
   const name = firstName(application.fullName);
   const discord = optionalEnv("DISCORD_INVITE_URL");
   const when = `${EVENT.dateLabel}, ${EVENT.timeLabel}`;
@@ -258,6 +268,83 @@ export function weeklyReminderEmail(application: { fullName: string; email: stri
       ...(discordHtml ? [discordHtml] : []),
       `Bring a photo ID for check-in, plus your laptop and charger.`,
       `<span style="color:#6f6c65">Can't make it any more? Reply to let us know, so we can give your spot to someone else.</span>`,
+    ]),
+  };
+}
+
+/** The "2 weeks to go" reminder, in Niguss's words: bring a friend, or come solo and we'll pair you up. */
+function twoWeeksToGoEmail(application: { fullName: string; email: string }): Email {
+  const name = firstName(application.fullName);
+  const discord = optionalEnv("DISCORD_INVITE_URL");
+  const when = `${EVENT.dateLabel}, ${EVENT.timeLabel}`;
+  const calendar = calendarLinks();
+  const apply = `${siteUrl()}/apply`;
+  const soloText = discord
+    ? `Coming solo? Don't worry. Join our Discord and we'll pair you with someone who shares your interests: ${discord}`
+    : `Coming solo? Don't worry. We'll pair you with someone who shares your interests.`;
+  const soloHtml = discord
+    ? `<strong>Coming solo?</strong> Don't worry. Join our Discord and we'll pair you with someone who shares your interests:<br><a href="${escapeHtml(discord)}" style="color:#b47a12">${escapeHtml(discord)}</a>`
+    : `<strong>Coming solo?</strong> Don't worry. We'll pair you with someone who shares your interests.`;
+  return {
+    to: application.email,
+    subject: `Only 2 weeks left until ${EVENT.name}!`,
+    text: [
+      `Hi ${name},`,
+      `We only have 2 weeks left until ${EVENT.name}, and it's going to be a blast!`,
+      `Bring a friend! If they haven't applied yet, send them this link: ${apply}`,
+      soloText,
+      `When: ${when}\nWhere: ${EVENT.venue}, ${EVENT.address}`,
+      calendar.text,
+      `Bring a photo ID for check-in, plus your laptop and charger.`,
+      `We're so excited to see you there!`,
+      `Can't make it any more? Reply to let us know, so we can give your spot to someone else.`,
+    ].join("\n\n"),
+    html: layout([
+      `Hi ${escapeHtml(name)},`,
+      `<strong>We only have 2 weeks left until ${escapeHtml(EVENT.name)}, and it's going to be a blast!</strong>`,
+      `<strong>Bring a friend!</strong> If they haven't applied yet, send them this link:<br><a href="${escapeHtml(apply)}" style="color:#b47a12">${escapeHtml(apply)}</a>`,
+      soloHtml,
+      `<strong>When:</strong> ${escapeHtml(when)}<br><strong>Where:</strong> ${escapeHtml(EVENT.venue)}, ${escapeHtml(EVENT.address)}`,
+      calendar.html,
+      `Bring a photo ID for check-in, plus your laptop and charger.`,
+      `We're so excited to see you there!`,
+      `<span style="color:#6f6c65">Can't make it any more? Reply to let us know, so we can give your spot to someone else.</span>`,
+    ]),
+  };
+}
+
+/**
+ * The one reminder an organizer can send to a listed teammate who still
+ * hasn't applied (after the invite). Same fixed wording rules as the invite.
+ */
+export function teammateReminderEmail(invite: {
+  to: string;
+  inviterName: string;
+  teamName: string | null;
+  link: string;
+}): Email {
+  const inviter = invite.inviterName.trim();
+  const team = invite.teamName?.trim();
+  const when = `${EVENT.dateLabel}, ${EVENT.timeLabel}`;
+  const teamText = team ? ` on "${team}"` : "";
+  const teamHtml = team ? ` on <strong>${escapeHtml(team)}</strong>` : "";
+  return {
+    to: invite.to,
+    subject: `Reminder: ${inviter} is saving you a spot at ${EVENT.name}`,
+    text: [
+      `Hi,`,
+      `${inviter} listed you as a teammate${teamText} for ${EVENT.name}, but we haven't received your application yet.`,
+      `When: ${when}\nWhere: ${EVENT.venue}, ${EVENT.address}`,
+      `Apply with this email address (${invite.to}) so we can put you on their team. Your team details are already filled in:\n${invite.link}`,
+      `Not coming, or don't know ${inviter}? Just ignore this. This is the last email we'll send you about it.`,
+    ].join("\n\n"),
+    html: layout([
+      `Hi,`,
+      `<strong>${escapeHtml(inviter)}</strong> listed you as a teammate${teamHtml} for ${escapeHtml(EVENT.name)}, but we haven't received your application yet.`,
+      `<strong>When:</strong> ${escapeHtml(when)}<br><strong>Where:</strong> ${escapeHtml(EVENT.venue)}, ${escapeHtml(EVENT.address)}`,
+      `Apply with this email address (${escapeHtml(invite.to)}) so we can put you on their team. Your team details are already filled in.`,
+      `<a href="${escapeHtml(invite.link)}" style="display:inline-block;padding:12px 20px;background:#d99a2b;color:#121315;text-decoration:none;font-weight:bold">Apply to join your team</a>`,
+      `<span style="color:#6f6c65">Not coming, or don't know ${escapeHtml(inviter)}? Just ignore this. This is the last email we'll send you about it.</span>`,
     ]),
   };
 }

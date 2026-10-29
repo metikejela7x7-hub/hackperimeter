@@ -62,8 +62,8 @@ describe("sendWeeklyReminders", () => {
     expect(await sendWeeklyReminders(daysBefore(14))).toBe(2);
     const [emails] = mocks.sendEmails.mock.calls[0];
     expect(emails.map((e: { subject: string }) => e.subject)).toEqual([
-      "2 weeks to go: HackPerimeter is November 13, 2026",
-      "2 weeks to go: HackPerimeter is November 13, 2026",
+      "Only 2 weeks left until HackPerimeter!",
+      "Only 2 weeks left until HackPerimeter!",
     ]);
     expect(await sendWeeklyReminders(daysBefore(14))).toBe(0); // retried job
     expect(mocks.sendEmails).toHaveBeenCalledTimes(1);
@@ -106,5 +106,19 @@ describe("calendar links", () => {
     expect(ics).toContain("LOCATION:CL Jim Cherry Auditorium\\, 555 Indian Creek Drive\\, Clarkston\\, GA");
     expect(lines.every((line) => line.length <= 75)).toBe(true);
     expect(ics.endsWith("END:VCALENDAR\r\n")).toBe(true);
+  });
+});
+
+describe("2 weeks to go reminder", () => {
+  it("asks people to bring a friend and offers solo people a partner", () => {
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://hackperimeter.com");
+    vi.stubEnv("DISCORD_INVITE_URL", "https://discord.gg/example");
+    const email = weeklyReminderEmail({ fullName: "Ada Example", email: "ada@example.com" }, 2);
+    expect(email.text).toContain("Bring a friend!");
+    expect(email.text).toContain("https://hackperimeter.com/apply");
+    expect(email.text).toContain("we'll pair you with someone who shares your interests: https://discord.gg/example");
+    expect(email.text).toContain("calendar.google.com");
+    // Other weeks keep the regular countdown.
+    expect(weeklyReminderEmail({ fullName: "Ada", email: "a@example.com" }, 1).text).not.toContain("Bring a friend");
   });
 });

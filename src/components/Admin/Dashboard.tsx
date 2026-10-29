@@ -154,7 +154,6 @@ export function Dashboard({ adminEmail, applications: initial }: DashboardProps)
   const statusCounts = stats.byStatus;
 
   const changeStatus = async (application: ApplicationRecord, status: ApplicationStatus) => {
-    const previous = application.status;
     if (
       status === "accepted" &&
       !window.confirm(
@@ -163,6 +162,35 @@ export function Dashboard({ adminEmail, applications: initial }: DashboardProps)
     ) {
       return;
     }
+    await saveStatus(application, status);
+  };
+
+  /** Accepts everyone on a team who isn't accepted yet, after one confirmation. */
+  const acceptTeam = async (members: readonly ApplicationRecord[], teamLabel: string) => {
+    const pending = members.filter((m) => m.status !== "accepted");
+    if (pending.length === 0) return;
+    if (
+      !window.confirm(
+        `Accept ${pending.map((m) => m.fullName).join(", ")} (${teamLabel})? ` +
+          "Anyone accepted for the first time is emailed the Discord invite and event details.",
+      )
+    ) {
+      return;
+    }
+    let accepted = 0;
+    for (const member of pending) if (await saveStatus(member, "accepted")) accepted += 1;
+    setMessage({
+      tone: accepted === pending.length ? "ok" : "error",
+      text:
+        accepted === pending.length
+          ? `${teamLabel}: accepted ${accepted} ${accepted === 1 ? "person" : "people"}. Acceptance emails sent.`
+          : `${teamLabel}: accepted ${accepted} of ${pending.length}. Try the rest again.`,
+    });
+  };
+
+  /** Saves a status change; returns true when it saved. */
+  const saveStatus = async (application: ApplicationRecord, status: ApplicationStatus) => {
+    const previous = application.status;
     setSaving(application.id);
     setMessage(null);
     setApplications((list) => list.map((a) => (a.id === application.id ? { ...a, status } : a)));
@@ -183,6 +211,7 @@ export function Dashboard({ adminEmail, applications: initial }: DashboardProps)
           ? `${application.fullName} accepted. Acceptance email sent to ${application.email}.`
           : `${application.fullName} marked ${labelFor(APPLICATION_STATUSES, status).toLowerCase()}.`,
       });
+      return true;
     } catch (error) {
       setApplications((list) =>
         list.map((a) => (a.id === application.id ? { ...a, status: previous } : a)),
@@ -191,6 +220,7 @@ export function Dashboard({ adminEmail, applications: initial }: DashboardProps)
         tone: "error",
         text: error instanceof Error ? error.message : "Couldn't save that change.",
       });
+      return false;
     } finally {
       setSaving(null);
     }
@@ -313,7 +343,14 @@ export function Dashboard({ adminEmail, applications: initial }: DashboardProps)
           <p className={styles.message} role="status" data-tone={message?.tone}>
             {message?.text ?? ""}
           </p>
-          <TeamsView applications={applications} busy={teamBusy} onEdit={editTeam} />
+          <TeamsView
+            applications={applications}
+            busy={teamBusy}
+            onEdit={editTeam}
+            savingId={saving}
+            onStatus={(application, status) => void changeStatus(application, status)}
+            onAcceptTeam={(members, label) => void acceptTeam(members, label)}
+          />
         </div>
       ) : (
         <div

@@ -3,6 +3,7 @@ import { createApplication, parseApplication } from "@/server/applications";
 import { jsonError, serverError } from "@/server/http";
 import { notifyNewApplication } from "@/server/notifications";
 import { RATE_LIMITS, withinRateLimit } from "@/server/rateLimit";
+import { linkListedTeammates } from "@/server/teamLinks";
 
 /** POST /api/applications: submit an application (JSON, see ApplicationRequest). */
 export async function POST(request: Request) {
@@ -24,8 +25,8 @@ export async function POST(request: Request) {
           fields: { resume: "Please attach your resume again." },
         });
       case "created":
-        // Email + Discord run after the response, so applicants never wait on them.
-        after(() => notifyNewApplication(result.application));
+        // Team links, email and Discord run after the response, so applicants never wait on them.
+        after(async () => notifyNewApplication(await linkListedTeammates(result.application)));
         return Response.json({ id: result.application.id }, { status: 201 });
     }
   } catch (error) {
