@@ -128,6 +128,10 @@ const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
  */
 export async function remindListedTeammates(
   applications: readonly ApplicationRecord[],
+  /** Only this address (the per-person button); every unapplied teammate when omitted. */
+  only?: string,
+  /** With `only`: send another reminder even if they were reminded before (organizer's call). */
+  again = false,
 ): Promise<ReminderResult> {
   if (!optionalEnv("EMAIL_FROM")) {
     throw new RemindersNotReady("Set EMAIL_FROM in Vercel first, so emails come from your domain.");
@@ -146,7 +150,10 @@ export async function remindListedTeammates(
     })),
   );
   const seen = new Set<string>();
-  const pending = everyone.filter((p) => !seen.has(p.email) && seen.add(p.email));
+  const target = only?.trim().toLowerCase();
+  const pending = everyone.filter(
+    (p) => (!target || p.email === target) && !seen.has(p.email) && seen.add(p.email),
+  );
   const result: ReminderResult = { invited: 0, reminded: 0, skipped: 0 };
   if (pending.length === 0) return result;
 
@@ -173,7 +180,7 @@ export async function remindListedTeammates(
 
   for (const person of pending) {
     const row = existing.get(person.email);
-    if (row?.reminded_at) {
+    if (row?.reminded_at && !(again && target)) {
       result.skipped += 1;
       continue;
     }
@@ -222,4 +229,36 @@ export async function remindListedTeammates(
     await pause(600); // stay under Resend's rate limit (2 emails a second on the free plan)
   }
   return result;
+}
+
+/** Where each unapplied teammate stands, for the per-person buttons on the Teams tab. */
+export type ReminderStatus = "not-invited" | "invited" | { remindedAt: string };
+
+export async function getReminderStatuses(
+  applications: readonly ApplicationRecord[],
+): Promise<Record<string, ReminderStatus>> {
+  const emails = [
+    ...new Set(
+      groupTeams(applications).teams.flatMap((t) =>
+        t.missing.map((m) => m.email.trim().toLowerCase()),
+      ),
+    ),
+  ];
+  const statuses: Record<string, ReminderStatus> = Object.fromEntries(
+    emails.map((e) => [e, "not-invited" as ReminderStatus]),
+  );
+  if (emails.length === 0) return statuses;
+  const { data, error } = await supabaseAdmin()
+    .from("teammate_invites")
+    .select("email, reminded_at")
+    .in("email", emails);
+  if (isMissingTable(error)) return statuses;
+  if (error?.code === "42703" || error?.code === "PGRST204") {
+    throw new RemindersNotReady("Run migration 0004 (teammate reminders) in Supabase first.");
+  }
+  if (error) throw error;
+  for (const row of (data ?? []) as { email: string; reminded_at: string | null }[]) {
+    statuses[row.email] = row.reminded_at ? { remindedAt: row.reminded_at } : "invited";
+  }
+  return statuses;
 }

@@ -104,6 +104,23 @@ describe("remindListedTeammates", () => {
     expect(sendEmail).not.toHaveBeenCalled();
   });
 
+  it("reminds one person on request, and again only when the organizer asks", async () => {
+    db.rows.set("grace@example.com", {
+      id: "g",
+      email: "grace@example.com",
+      reminded_at: "2026-10-20T12:00:00Z",
+    });
+    const one = (again = false) => {
+      const pending = remindListedTeammates(team(), "Grace@Example.com", again);
+      return vi.runAllTimersAsync().then(() => pending);
+    };
+    expect(await one()).toEqual({ invited: 0, reminded: 0, skipped: 1 });
+    expect(await one(true)).toEqual({ invited: 0, reminded: 1, skipped: 0 });
+    expect(subjects()).toEqual([
+      "grace@example.com: Reminder: Ada Example is saving you a spot at HackPerimeter",
+    ]);
+  });
+
   it("refuses to run without a verified sender", async () => {
     vi.stubEnv("EMAIL_FROM", "");
     await expect(remindListedTeammates(team())).rejects.toBeInstanceOf(RemindersNotReady);

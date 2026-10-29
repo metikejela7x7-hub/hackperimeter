@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   APPLICATION_STATUSES,
   EXPERIENCE_LEVELS,
+  GRADUATION_YEARS,
   INTERESTS,
   labelFor,
   type ApplicationStatus,
@@ -149,6 +150,50 @@ function TeamName({ team, busy, onEdit }: { team: Team; busy: boolean; onEdit: O
   );
 }
 
+/** Where an unapplied teammate stands (see GET /api/admin/teammates/remind). */
+type ReminderStatus = "not-invited" | "invited" | { remindedAt: string };
+
+const remindedFormat = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  timeZone: "America/New_York",
+});
+
+/** A member's application at a glance, with their resume. */
+function MemberInfo({ application }: { application: ApplicationRecord }) {
+  const rows: [string, React.ReactNode][] = [
+    ["School", application.school],
+    ["Major", application.major],
+    ["Graduation", labelFor(GRADUATION_YEARS, application.graduationYear)],
+    ["Experience", labelFor(EXPERIENCE_LEVELS, application.experience)],
+    ["Interests", application.interests.map((v) => labelFor(INTERESTS, v)).join(", ")],
+    [
+      "Link",
+      application.portfolioUrl ? (
+        <a href={application.portfolioUrl} target="_blank" rel="noopener noreferrer nofollow">
+          {application.portfolioUrl}
+        </a>
+      ) : (
+        "—"
+      ),
+    ],
+    ["Needs", application.needs ?? "—"],
+  ];
+  return (
+    <details className={styles.memberMore}>
+      <summary>Details</summary>
+      <dl className={styles.memberInfo}>
+        {rows.map(([term, value]) => (
+          <div key={term}>
+            <dt>{term}</dt>
+            <dd>{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </details>
+  );
+}
+
 /** Teams matched from applications, plus everyone still looking for one. Organizers can edit both. */
 export function TeamsView({
   applications,
@@ -160,53 +205,74 @@ export function TeamsView({
 }: TeamsViewProps) {
   const { teams, lookingForTeam } = useMemo(() => groupTeams(applications), [applications]);
   const [notify, setNotify] = useState(true);
-  const [reminding, setReminding] = useState(false);
-  const [reminderStatus, setReminderStatus] = useState<{
+  const [statuses, setStatuses] = useState<Record<string, ReminderStatus>>({});
+  const [remindingEmail, setRemindingEmail] = useState<string | null>(null);
+  const [reminderMessage, setReminderMessage] = useState<{
     tone: "ok" | "error";
     text: string;
   } | null>(null);
-  const notApplied = new Set(teams.flatMap((t) => t.missing.map((m) => m.email.toLowerCase())))
-    .size;
 
-  const remindTeammates = async () => {
-    if (
-      !window.confirm(
-        (notApplied === 1
-          ? "Email the 1 listed teammate who hasn't applied? "
-          : `Email the ${notApplied} listed teammates who haven't applied? `) +
-          "Anyone never invited gets the invite; everyone else gets one reminder. " +
-          "Nobody is ever reminded twice.",
-      )
-    ) {
-      return;
-    }
-    setReminding(true);
-    setReminderStatus(null);
+  // Load who's been invited or reminded whenever the list of unapplied teammates changes.
+  const missingKey = teams
+    .flatMap((t) => t.missing.map((m) => m.email.toLowerCase()))
+    .sort()
+    .join(",");
+  useEffect(() => {
+    if (!missingKey) return;
+    let cancelled = false;
+    fetch("/api/admin/teammates/remind")
+      .then((response) => (response.ok ? response.json() : null))
+      .then((body: { statuses?: Record<string, ReminderStatus> } | null) => {
+        if (!cancelled && body?.statuses) setStatuses(body.statuses);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [missingKey]);
+
+  const remindOne = async (mate: { name: string; email: string }) => {
+    const email = mate.email.toLowerCase();
+    const status = statuses[email];
+    const who = mate.name || mate.email;
+    const again = typeof status === "object";
+    const what = again
+      ? `${who} was last reminded on ${remindedFormat.format(new Date(status.remindedAt))}. Send another reminder?`
+      : status === "invited"
+        ? `Send ${who} a reminder to apply?`
+        : `Send ${who} an invite to apply, with their team details filled in?`;
+    if (!window.confirm(what)) return;
+    setRemindingEmail(email);
+    setReminderMessage(null);
     try {
-      const response = await fetch("/api/admin/teammates/remind", { method: "POST" });
+      const response = await fetch("/api/admin/teammates/remind", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, again }),
+      });
       const body = (await response.json().catch(() => null)) as {
         error?: string;
         invited?: number;
         reminded?: number;
-        skipped?: number;
       } | null;
-      if (!response.ok || !body) throw new Error(body?.error ?? "Couldn't send the reminders.");
-      const parts = [
-        body.invited ? `${body.invited} invited` : "",
-        body.reminded ? `${body.reminded} reminded` : "",
-        body.skipped ? `${body.skipped} already reminded before (skipped)` : "",
-      ].filter(Boolean);
-      setReminderStatus({
-        tone: "ok",
-        text: parts.length ? `Done: ${parts.join(", ")}.` : "Nobody to email.",
-      });
+      if (!response.ok || !body) throw new Error(body?.error ?? "Couldn't send that email.");
+      if (body.invited) {
+        setStatuses((current) => ({ ...current, [email]: "invited" }));
+        setReminderMessage({ tone: "ok", text: `Invite sent to ${who}.` });
+      } else if (body.reminded) {
+        const remindedAt = new Date().toISOString();
+        setStatuses((current) => ({ ...current, [email]: { remindedAt } }));
+        setReminderMessage({ tone: "ok", text: `Reminder sent to ${who}.` });
+      } else {
+        setReminderMessage({ tone: "error", text: `Nothing was sent to ${who}.` });
+      }
     } catch (error) {
-      setReminderStatus({
+      setReminderMessage({
         tone: "error",
-        text: error instanceof Error ? error.message : "Couldn't send the reminders.",
+        text: error instanceof Error ? error.message : "Couldn't send that email.",
       });
     } finally {
-      setReminding(false);
+      setRemindingEmail(null);
     }
   };
 
@@ -260,20 +326,9 @@ export function TeamsView({
           />
           Email people when I team them up (teammates&rsquo; names only, no contact details)
         </label>
-        <div className={styles.remindRow}>
-          <button
-            type="button"
-            className={styles.download}
-            disabled={reminding || notApplied === 0}
-            onClick={() => void remindTeammates()}
-          >
-            {reminding ? "Sending…" : `Remind teammates who haven't applied (${notApplied})`}
-          </button>
-          <span className={styles.muted}>Each address gets at most one reminder.</span>
-        </div>
-        {reminderStatus && (
-          <p className={styles.message} role="status" data-tone={reminderStatus.tone}>
-            {reminderStatus.text}
+        {reminderMessage && (
+          <p className={styles.message} role="status" data-tone={reminderMessage.tone}>
+            {reminderMessage.text}
           </p>
         )}
         {teams.length === 0 ? (
@@ -326,6 +381,19 @@ export function TeamsView({
                         <span>
                           <strong>{application.fullName}</strong>{" "}
                           <a href={`mailto:${application.email}`}>{application.email}</a>
+                          {application.hasResume && (
+                            <>
+                              {" · "}
+                              <a
+                                className={styles.resumeLink}
+                                href={`/api/admin/applications/${application.id}/resume`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                Resume
+                              </a>
+                            </>
+                          )}
                         </span>
                         <span className={styles.memberTags}>
                           <StatusSelect
@@ -351,6 +419,7 @@ export function TeamsView({
                             Remove
                           </button>
                         </span>
+                        <MemberInfo application={application} />
                       </li>
                     ))}
                     {team.missing.map((mate) => (
@@ -361,6 +430,34 @@ export function TeamsView({
                         </span>
                         <span className={styles.memberTags}>
                           <span>Hasn&rsquo;t applied · listed by {mate.listedBy.join(", ")}</span>
+                          {(() => {
+                            const status = statuses[mate.email.toLowerCase()];
+                            const sending = remindingEmail === mate.email.toLowerCase();
+                            const reminded = typeof status === "object";
+                            return (
+                              <>
+                                {reminded && (
+                                  <span className={styles.reminded}>
+                                    Reminded {remindedFormat.format(new Date(status.remindedAt))} ✓
+                                  </span>
+                                )}
+                                <button
+                                  type="button"
+                                  className={styles.remindButton}
+                                  disabled={remindingEmail !== null}
+                                  onClick={() => void remindOne(mate)}
+                                >
+                                  {sending
+                                    ? "Sending…"
+                                    : reminded
+                                      ? "Send again"
+                                      : status === "invited"
+                                        ? "Send reminder"
+                                        : "Send invite"}
+                                </button>
+                              </>
+                            );
+                          })()}
                         </span>
                       </li>
                     ))}
@@ -406,6 +503,16 @@ export function TeamsView({
                     {application.interests.map((value) => labelFor(INTERESTS, value)).join(", ")}
                   </span>
                   <span>{labelFor(APPLICATION_STATUSES, application.status)}</span>
+                  {application.hasResume && (
+                    <a
+                      className={styles.resumeLink}
+                      href={`/api/admin/applications/${application.id}/resume`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Resume
+                    </a>
+                  )}
                 </div>
                 <PersonPicker
                   label="Team up with…"
@@ -420,6 +527,9 @@ export function TeamsView({
                     )
                   }
                 />
+                <div className={styles.soloMore}>
+                  <MemberInfo application={application} />
+                </div>
               </li>
             ))}
           </ul>

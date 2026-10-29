@@ -605,3 +605,100 @@
   font: inherit;
   font-size: 0.8125rem;
 }
+
+/* ---------- Team members: resume, details, reminders ---------- */
+
+.resumeLink {
+  color: var(--amber) !important;
+}
+
+.memberMore summary {
+  width: fit-content;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.memberInfo {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.memberInfo div {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+.memberInfo dt {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.memberInfo dd {
+  overflow-wrap: anywhere;
+}
+
+.remindButton {
+  padding: 0.15rem 0.5rem;
+  background: none;
+  border: 1px solid var(--amber);
+  color: var(--amber);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.remindButton:hover:not(:disabled) {
+  background: var(--amber);
+  color: var(--bg-deep);
+}
+
+.remindButton:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+
+.reminded {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5fbf77;
+}
+
+/* Team vs solo, on each application row */
+.teamChip {
+  padding: 0 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  line-height: 1.6rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.teamChip[data-kind="team"] {
+  background: var(--amber-soft);
+  border: 1px solid var(--amber);
+  color: var(--amber);
+}
+
+.teamChip[data-kind="solo"] {
+  border: 1px dashed var(--line-strong);
+  color: var(--text-muted);
+}
+
+.soloMore {
+  grid-column: 1 / -1;
+}

@@ -13,6 +13,7 @@ import type { ApplicationRecord } from "@/server/applications";
 import { computeStats, type Count } from "@/server/stats";
 import styles from "./Admin.module.css";
 import type { TeamEdit } from "./teamEdits";
+import { groupTeams } from "./teams";
 import { TeamsView } from "./TeamsView";
 
 interface DashboardProps {
@@ -136,18 +137,29 @@ export function Dashboard({ adminEmail, applications: initial }: DashboardProps)
   const [teamBusy, setTeamBusy] = useState(false);
   const [tab, setTab] = useState<"applications" | "teams">("applications");
   const [message, setMessage] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
+  const [teamFilter, setTeamFilter] = useState<"all" | "team" | "solo">("all");
+
+  // Who's actually on a team (as matched on the Teams tab), and under what name.
+  const teamOf = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const team of groupTeams(applications).teams) {
+      for (const { application } of team.members) map.set(application.id, team.name ?? "");
+    }
+    return map;
+  }, [applications]);
 
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return applications.filter(
       (a) =>
         (statusFilter === "all" || a.status === statusFilter) &&
+        (teamFilter === "all" || (teamFilter === "team") === teamOf.has(a.id)) &&
         (!needle ||
-          [a.fullName, a.email, a.school, a.teamName ?? ""].some((field) =>
+          [a.fullName, a.email, a.school, teamOf.get(a.id) ?? a.teamName ?? ""].some((field) =>
             field.toLowerCase().includes(needle),
           )),
     );
-  }, [applications, query, statusFilter]);
+  }, [applications, query, statusFilter, teamFilter, teamOf]);
 
   // Recomputed from the list in hand, so every counter stays right after a delete or status change.
   const stats = useMemo(() => computeStats(applications), [applications]);
@@ -424,6 +436,16 @@ export function Dashboard({ adminEmail, applications: initial }: DashboardProps)
                   </option>
                 ))}
               </select>
+              <select
+                className={styles.input}
+                aria-label="Filter by team"
+                value={teamFilter}
+                onChange={(event) => setTeamFilter(event.target.value as typeof teamFilter)}
+              >
+                <option value="all">Teams + solo</option>
+                <option value="team">On a team</option>
+                <option value="solo">Looking for a team</option>
+              </select>
             </div>
 
             <p className={styles.message} role="status" data-tone={message?.tone}>
@@ -447,11 +469,15 @@ export function Dashboard({ adminEmail, applications: initial }: DashboardProps)
                     <div className={styles.meta}>
                       <span>{application.school}</span>
                       <span>{labelFor(EXPERIENCE_LEVELS, application.experience)}</span>
-                      <span>
-                        {application.teamMode === "team"
-                          ? `Team${application.teamName ? `: ${application.teamName}` : ""}`
-                          : "Looking for a team"}
-                      </span>
+                      {teamOf.has(application.id) ? (
+                        <span className={styles.teamChip} data-kind="team">
+                          Team{teamOf.get(application.id) ? ` · ${teamOf.get(application.id)}` : ""}
+                        </span>
+                      ) : (
+                        <span className={styles.teamChip} data-kind="solo">
+                          Solo · looking for a team
+                        </span>
+                      )}
                       <span>{submittedFormat.format(new Date(application.createdAt))}</span>
                       {application.hasResume && (
                         <a
