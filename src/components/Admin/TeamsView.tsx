@@ -204,7 +204,6 @@ export function TeamsView({
   onAcceptTeam,
 }: TeamsViewProps) {
   const { teams, lookingForTeam } = useMemo(() => groupTeams(applications), [applications]);
-  const [notify, setNotify] = useState(true);
   const [statuses, setStatuses] = useState<Record<string, ReminderStatus>>({});
   const [remindingEmail, setRemindingEmail] = useState<string | null>(null);
   const [reminderMessage, setReminderMessage] = useState<{
@@ -318,14 +317,6 @@ export function TeamsView({
           team name links that person, so double-check them. Team names are optional: add one
           whenever the team tells you.
         </p>
-        <label className={styles.notifyToggle}>
-          <input
-            type="checkbox"
-            checked={notify}
-            onChange={(event) => setNotify(event.target.checked)}
-          />
-          Email people when I team them up (teammates&rsquo; names only, no contact details)
-        </label>
         {reminderMessage && (
           <p className={styles.message} role="status" data-tone={reminderMessage.tone}>
             {reminderMessage.text}
@@ -470,7 +461,7 @@ export function TeamsView({
                     onPick={(person) =>
                       void onEdit(
                         person,
-                        { action: "link", withId: team.members[0].application.id, notify },
+                        { action: "link", withId: team.members[0].application.id },
                         `${person.fullName} joined ${team.name ? `“${team.name}”` : "the team"}.`,
                       )
                     }
@@ -522,7 +513,7 @@ export function TeamsView({
                   onPick={(person) =>
                     void onEdit(
                       application,
-                      { action: "link", withId: person.id, notify },
+                      { action: "link", withId: person.id },
                       `${application.fullName} teamed up with ${person.fullName}.`,
                     )
                   }
