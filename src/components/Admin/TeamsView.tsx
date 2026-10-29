@@ -186,7 +186,7 @@ export function TeamsView({ applications, busy, onEdit }: TeamsViewProps) {
                     )}
                   </div>
                   <ul className={styles.members}>
-                    {team.members.map(({ application, matchedByName }) => (
+                    {team.members.map(({ application, matchedByName, alsoListedAs }) => (
                       <li
                         key={application.id}
                         className={styles.member}
@@ -199,6 +199,11 @@ export function TeamsView({ applications, busy, onEdit }: TeamsViewProps) {
                         <span className={styles.memberTags}>
                           <span>{labelFor(APPLICATION_STATUSES, application.status)}</span>
                           {matchedByName && <span className={styles.flag}>Name match</span>}
+                          {alsoListedAs.length > 0 && (
+                            <span title="A teammate listed this person under a different email">
+                              Also listed as {alsoListedAs.join(", ")}
+                            </span>
+                          )}
                           {application.teamMode === "solo" && (
                             <span className={styles.flag}>Applied as looking for a team</span>
                           )}

@@ -7,6 +7,11 @@ export interface TeamMember {
    * not because anyone listed their email. Worth a quick check by an organizer.
    */
   matchedByName: boolean;
+  /**
+   * Other emails a teammate listed for this person (e.g. their school address)
+   * when they applied with a different one. Matched by name within the team.
+   */
+  alsoListedAs: string[];
 }
 
 /** Someone a member listed as a teammate who hasn't applied (no application with that email). */
@@ -35,6 +40,28 @@ export interface TeamGroups {
 const emailKey = (email: string) => email.trim().toLowerCase();
 /** "Byte Me", "byteme" and "BYTE-ME!" all match. */
 const teamNameKey = (name: string | null) => (name ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
+/** "Alex  Smith", "alex smith" and "Alex Smith." all match. */
+const personKey = (name: string) =>
+  name
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, "")
+    .split(/\s+/)
+    .filter(Boolean);
+
+/**
+ * The team member a listed-but-unapplied teammate actually is, judged by name:
+ * the same full name, or just a first name that only one member has. Null if
+ * it's ambiguous or nobody matches, so different people are never merged.
+ */
+function sameNamedMember(listedName: string, members: readonly ApplicationRecord[]) {
+  const listed = personKey(listedName);
+  if (listed.length === 0) return null;
+  const full = members.filter((m) => personKey(m.fullName).join(" ") === listed.join(" "));
+  if (full.length === 1) return full[0];
+  if (full.length > 1 || listed.length > 1) return null;
+  const first = members.filter((m) => personKey(m.fullName)[0] === listed[0]);
+  return first.length === 1 ? first[0] : null;
+}
 
 /**
  * Groups applications into teams. Two applications are on the same team when
@@ -112,13 +139,29 @@ export function groupTeams(applications: readonly ApplicationRecord[]): TeamGrou
       }
     }
 
+    // A "missing" teammate who is really a member listed under another email
+    // (typically a school address) is folded into that member.
+    const aliases = new Map<string, string[]>();
+    for (const [key, entry] of missing) {
+      const candidates = members.filter((m) => !entry.listedBy.includes(m.fullName));
+      const member = sameNamedMember(entry.name, candidates);
+      if (!member) continue;
+      aliases.set(member.id, [...(aliases.get(member.id) ?? []), entry.email]);
+      missing.delete(key);
+    }
+
     teams.push({
       key: root,
       name: mostCommonName(members),
       members: members
         .map((application) => ({
           application,
-          matchedByName: clusterSizes.size > 1 && emailGroup.get(application.id) !== mainCluster,
+          // Being listed by a teammate (even under another email) links them for real.
+          matchedByName:
+            clusterSizes.size > 1 &&
+            emailGroup.get(application.id) !== mainCluster &&
+            !aliases.has(application.id),
+          alsoListedAs: aliases.get(application.id) ?? [],
         }))
         .sort((p, q) => p.application.fullName.localeCompare(q.application.fullName)),
       missing: [...missing.values()],

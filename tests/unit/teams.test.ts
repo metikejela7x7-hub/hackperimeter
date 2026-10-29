@@ -95,4 +95,55 @@ describe("groupTeams", () => {
     expect(teams).toHaveLength(1);
     expect(names(teams[0])).toEqual(["Ada"]);
   });
+
+  it("recognizes a member a teammate listed under a different email", () => {
+    const ada = record({
+      fullName: "Ada Example",
+      teamMode: "team",
+      teamName: "Byte Me",
+      teammates: [{ name: "alex  smith", email: "alex@student.gsu.edu" }],
+    });
+    const alex = record({
+      fullName: "Alex Smith",
+      email: "alex@gmail.com",
+      teamMode: "team",
+      teamName: "Byte Me",
+    });
+
+    const [team] = groupTeams([ada, alex]).teams;
+
+    expect(team.missing).toEqual([]);
+    const member = team.members.find((m) => m.application.fullName === "Alex Smith")!;
+    expect(member.alsoListedAs).toEqual(["alex@student.gsu.edu"]);
+    expect(member.matchedByName).toBe(false);
+  });
+
+  it("matches a first name only when exactly one member has it", () => {
+    const lister = (name: string) =>
+      record({
+        fullName: "Ada Example",
+        teamMode: "team",
+        teamName: "Owls",
+        teammates: [{ name, email: "someone@school.edu" }],
+      });
+    const alex = record({ fullName: "Alex Smith", teamMode: "team", teamName: "Owls" });
+    const alexJones = record({ fullName: "Alex Jones", teamMode: "team", teamName: "Owls" });
+
+    expect(groupTeams([lister("Alex"), alex]).teams[0].missing).toEqual([]);
+    // Two Alexes: can't tell which, so leave it as a separate "hasn't applied" entry.
+    expect(groupTeams([lister("Alex"), alex, alexJones]).teams[0].missing).toHaveLength(1);
+  });
+
+  it("never merges people with different names", () => {
+    const ada = record({
+      fullName: "Ada Example",
+      teamMode: "team",
+      teamName: "Owls",
+      teammates: [{ name: "Linus Torvalds", email: "linus@school.edu" }],
+    });
+    const alex = record({ fullName: "Alex Smith", teamMode: "team", teamName: "Owls" });
+    const [team] = groupTeams([ada, alex]).teams;
+    expect(team.missing.map((m) => m.name)).toEqual(["Linus Torvalds"]);
+    expect(team.members.every((m) => m.alsoListedAs.length === 0)).toBe(true);
+  });
 });
