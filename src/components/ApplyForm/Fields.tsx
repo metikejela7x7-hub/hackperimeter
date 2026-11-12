@@ -316,46 +316,6 @@ export function ChipGroup({
   );
 }
 
-/** A single checkbox with a long label, e.g. the agreement. */
-export function CheckboxField({
-  name,
-  checked,
-  onChange,
-  error,
-  children,
-}: {
-  name: FieldName;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  error?: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className={styles.field}>
-      <label className={styles.agree}>
-        <input
-          type="checkbox"
-          className={styles.agreeInput}
-          id={fieldId(name)}
-          name={name}
-          checked={checked}
-          required
-          aria-invalid={error ? true : undefined}
-          aria-describedby={describedBy(name, undefined, error)}
-          onChange={(event) => onChange(event.target.checked)}
-        />
-        <span className={styles.agreeBox} aria-hidden="true">
-          <svg viewBox="0 0 16 16" width="14" height="14" focusable="false">
-            <path d="m3 8.5 3.2 3L13 4.5" fill="none" stroke="currentColor" strokeWidth="2" />
-          </svg>
-        </span>
-        <span className={styles.agreeText}>{children}</span>
-      </label>
-      <FieldError name={name} message={error} />
-    </div>
-  );
-}
-
 function formatBytes(bytes: number): string {
   return bytes < 1024 * 1024
     ? `${Math.max(1, Math.round(bytes / 1024))} KB`

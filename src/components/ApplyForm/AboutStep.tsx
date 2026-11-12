@@ -10,7 +10,6 @@ export function AboutStep({ data, errors, onChange, onBlur }: StepProps) {
         <TextField
           name="fullName"
           label="Full name"
-          hint="As it appears on your photo ID."
           autoComplete="name"
           maxLength={LIMITS.name}
           value={data.fullName}

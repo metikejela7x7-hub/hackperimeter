@@ -86,8 +86,7 @@ export const RESUME_MAX_LABEL = "4 MB";
 /** The participant agreement (code of conduct, acceptable use, rules of engagement), served from /public. */
 export const AGREEMENT_URL = "/hackperimeter-participant-agreement.pdf";
 
-export const AGREEMENT_TEXT =
-  "I confirm the information above is accurate, and I have read and agree to the Hackperimeter Participant Agreement.";
+
 
 /** Look up the display label for a stored option value. */
 export function labelFor(options: readonly ChoiceOption[], value: string): string {

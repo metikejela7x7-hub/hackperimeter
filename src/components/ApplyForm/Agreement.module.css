@@ -1,0 +1,251 @@
+.field {
+  display: grid;
+  gap: 0.6rem;
+}
+
+/* ---------- On the review step ---------- */
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem 1.25rem;
+  padding: 1rem 1.1rem;
+  background: var(--bg-deep);
+  border: 1px solid var(--line-strong);
+  line-height: 1.45;
+}
+
+.summary p {
+  flex: 1 1 18rem;
+}
+
+.summary[data-signed="true"] {
+  border-color: var(--amber);
+}
+
+.summary[data-invalid="true"] {
+  border-color: var(--error);
+}
+
+.signed span {
+  color: var(--amber);
+  font-weight: 700;
+}
+
+.openButton,
+.signButton {
+  min-height: 2.75rem;
+  padding: 0 1.1rem;
+  background: var(--amber);
+  border: 0;
+  color: var(--bg-deep);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.signButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.reopen,
+.cancel {
+  min-height: 2.75rem;
+  padding: 0 0.9rem;
+  background: none;
+  border: 1px solid var(--line-strong);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.openButton:focus-visible,
+.signButton:focus-visible,
+.reopen:focus-visible,
+.cancel:focus-visible,
+.close:focus-visible,
+.body:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+.error {
+  font-size: 0.9375rem;
+  color: var(--error);
+}
+
+/* ---------- The agreement dialog ---------- */
+
+.dialog {
+  width: min(48rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  background: var(--bg-raised);
+  color: var(--text);
+  border: 1px solid var(--line-strong);
+  border-top: 4px solid var(--amber);
+}
+
+.dialog[open] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.dialog::backdrop {
+  background: rgba(8, 9, 10, 0.78);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem 0.9rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  font-stretch: 115%;
+  text-transform: uppercase;
+  line-height: 1.15;
+}
+
+.meta {
+  margin-top: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.close {
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  background: none;
+  border: 1px solid var(--line-strong);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.body {
+  overflow-y: auto;
+  padding: 1.1rem 1.25rem 1.5rem;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.body h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.body h4 {
+  margin: 0.75rem 0 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+.body p + p {
+  margin-top: 0.6rem;
+}
+
+.body ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.2rem;
+  list-style: disc;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.short {
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line-strong);
+  background: var(--bg-deep);
+}
+
+.section {
+  margin-top: 1.5rem;
+}
+
+.locked {
+  margin-top: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+.body .confirmations {
+  list-style: none;
+  padding: 0;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.confirm {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--line-strong);
+  background: var(--bg-deep);
+  cursor: pointer;
+}
+
+.confirm:has(input:checked) {
+  border-color: var(--amber);
+}
+
+.confirm[data-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.confirm input {
+  flex: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 0.15rem;
+  accent-color: var(--amber);
+}
+
+.pdf {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+
+.pdf a {
+  color: var(--amber);
+}
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem 0.75rem;
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid var(--line);
+}
+
+.progress {
+  margin-right: auto;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}

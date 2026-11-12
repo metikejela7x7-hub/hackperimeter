@@ -1,13 +1,12 @@
 import type { ReactNode } from "react";
 import {
-  AGREEMENT_TEXT,
-  AGREEMENT_URL,
   EXPERIENCE_LEVELS,
   GRADUATION_YEARS,
   INTERESTS,
   labelFor,
 } from "@/data/apply";
-import { CheckboxField, FieldStack, TextAreaField } from "./Fields";
+import { AgreementSign } from "./AgreementSign";
+import { FieldStack, TextAreaField } from "./Fields";
 import { LIMITS } from "./validation";
 import type { ApplicationData, StepProps } from "./types";
 import styles from "./Review.module.css";
@@ -128,18 +127,11 @@ export function ReviewStep({ data, errors, onChange, onEdit }: ReviewStepProps) 
         onChange={(event) => onChange({ needs: event.target.value }, [])}
       />
 
-      <CheckboxField
-        name="agreed"
-        checked={data.agreed}
+      <AgreementSign
+        agreed={data.agreed}
         error={errors.agreed}
         onChange={(agreed) => onChange({ agreed }, ["agreed"])}
-      >
-        {AGREEMENT_TEXT}{" "}
-        <a href={AGREEMENT_URL} target="_blank" rel="noopener noreferrer">
-          Read the agreement
-        </a>
-        <span className="sr-only"> (opens in a new tab)</span>
-      </CheckboxField>
+      />
     </FieldStack>
   );
 }

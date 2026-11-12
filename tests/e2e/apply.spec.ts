@@ -23,7 +23,17 @@ async function fillApplication(page: Page, { withResume = false } = {}) {
   await page.getByRole("radio", { name: /^Looking for a team/ }).check();
   await page.getByRole("button", { name: "Continue" }).click();
 
-  await page.getByRole("checkbox", { name: /I confirm the information above/ }).check();
+  await agreeToAgreement(page);
+}
+
+/** Opens the participant agreement, scrolls to the end, ticks every box and agrees. */
+async function agreeToAgreement(page: Page) {
+  await page.getByRole("button", { name: "Read & agree to the agreement" }).click();
+  const dialog = page.getByRole("dialog", { name: /participant agreement/i });
+  await dialog.locator("[tabindex='0']").evaluate((el) => el.scrollTo({ top: el.scrollHeight }));
+  for (const box of await dialog.getByRole("checkbox").all()) await box.check();
+  await dialog.getByRole("button", { name: "I agree" }).click();
+  await expect(page.getByText(/You.ve agreed to the Hackperimeter Participant Agreement/)).toBeVisible();
 }
 
 test("submits an application with a resume", async ({ page }) => {

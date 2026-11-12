@@ -132,7 +132,7 @@ export function validate(data: ApplicationData): FormErrors {
   }
 
   // Step 4: Review and submit
-  if (!data.agreed) errors.agreed = "Agree to the participant agreement to submit your application.";
+  if (!data.agreed) errors.agreed = "Read and agree to the participant agreement to submit your application.";
 
   return errors;
 }
