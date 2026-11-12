@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 import { googleCalendarUrl, outlookCalendarUrl } from "@/data/calendar";
-import { EVENT } from "@/data/event";
+import { EVENT, SOCIAL_LINKS } from "@/data/event";
 import { optionalEnv, siteUrl } from "./env";
 
 export interface Email {
@@ -11,6 +11,15 @@ export interface Email {
   /** Files Resend fetches from a public URL and attaches. */
   attachments?: { filename: string; path: string }[];
 }
+
+/** The confirmed day-of schedule and the participant agreement, served from /public. */
+export const SCHEDULE_FILE = "hackperimeter-schedule.pdf";
+export const AGREEMENT_FILE = "hackperimeter-participant-agreement.pdf";
+
+const scheduleAttachment = () => ({
+  filename: "HackPerimeter-Schedule.pdf",
+  path: `${siteUrl()}/${SCHEDULE_FILE}`,
+});
 
 /**
  * Sends through Resend. Returns false (and logs) instead of throwing, so a
@@ -65,6 +74,13 @@ export function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
+/**
+ * The Discord invite used in emails: the same never-expiring link as the site's
+ * header and footer. (The invite saved in Vercel's settings expired, so emails
+ * no longer read that setting.)
+ */
+const discordInvite = (): string | undefined => SOCIAL_LINKS.find((l) => l.id === "discord")?.href;
+
 const firstName = (fullName: string) => fullName.trim().split(/\s+/)[0] || "there";
 
 /** "Add to your calendar" links: Google, Outlook, and an .ics file for Apple and others. */
@@ -114,7 +130,7 @@ export function confirmationEmail(application: { fullName: string; email: string
 
 export function acceptanceEmail(application: { fullName: string; email: string }): Email {
   const name = firstName(application.fullName);
-  const discord = optionalEnv("DISCORD_INVITE_URL");
+  const discord = discordInvite();
   const when = `${EVENT.dateLabel}, ${EVENT.timeLabel}`;
   const calendar = calendarLinks();
   const discordText = discord
@@ -132,6 +148,7 @@ export function acceptanceEmail(application: { fullName: string; email: string }
       `When: ${when}\nWhere: ${EVENT.venue}, ${EVENT.address}`,
       discordText,
       calendar.text,
+      `Your schedule for the day is attached. Please also read our participant agreement before the event: ${siteUrl()}/${AGREEMENT_FILE}`,
       `Bring a photo ID for check-in, plus your laptop and charger.`,
       `More details: ${siteUrl()}`,
     ].join("\n\n"),
@@ -141,9 +158,11 @@ export function acceptanceEmail(application: { fullName: string; email: string }
       `<strong>When:</strong> ${escapeHtml(when)}<br><strong>Where:</strong> ${escapeHtml(EVENT.venue)}, ${escapeHtml(EVENT.address)}`,
       discordHtml,
       calendar.html,
+      `<strong>Your schedule for the day is attached.</strong> Please also read our <a href="${escapeHtml(`${siteUrl()}/${AGREEMENT_FILE}`)}" style="color:#b47a12">participant agreement</a> before the event.`,
       `Bring a photo ID for check-in, plus your laptop and charger.`,
       `<a href="${escapeHtml(siteUrl())}" style="color:#b47a12">${escapeHtml(siteUrl())}</a>`,
     ]),
+    attachments: [scheduleAttachment()],
   };
 }
 
@@ -196,7 +215,7 @@ export function teamMatchedEmail(match: {
   accepted: boolean;
 }): Email {
   const name = firstName(match.fullName);
-  const discord = match.accepted ? optionalEnv("DISCORD_INVITE_URL") : undefined;
+  const discord = match.accepted ? discordInvite() : undefined;
   const team = match.teamName?.trim();
   const names = match.teammateNames.map((n) => n.trim()).filter(Boolean);
   const list =
@@ -238,7 +257,7 @@ export function teamMatchedEmail(match: {
 export function weeklyReminderEmail(application: { fullName: string; email: string }, weeksLeft: number): Email {
   if (weeksLeft === 2) return twoWeeksToGoEmail(application);
   const name = firstName(application.fullName);
-  const discord = optionalEnv("DISCORD_INVITE_URL");
+  const discord = discordInvite();
   const when = `${EVENT.dateLabel}, ${EVENT.timeLabel}`;
   const countdown = weeksLeft === 1 ? "One week to go" : `${weeksLeft} weeks to go`;
   const calendar = calendarLinks();
@@ -275,7 +294,7 @@ export function weeklyReminderEmail(application: { fullName: string; email: stri
 /** The "2 weeks to go" reminder, in Niguss's words: bring a friend, or come solo and we'll pair you up. */
 function twoWeeksToGoEmail(application: { fullName: string; email: string }): Email {
   const name = firstName(application.fullName);
-  const discord = optionalEnv("DISCORD_INVITE_URL");
+  const discord = discordInvite();
   const when = `${EVENT.dateLabel}, ${EVENT.timeLabel}`;
   const calendar = calendarLinks();
   const apply = `${siteUrl()}/apply`;
@@ -346,5 +365,68 @@ export function teammateReminderEmail(invite: {
       `<a href="${escapeHtml(invite.link)}" style="display:inline-block;padding:12px 20px;background:#d99a2b;color:#121315;text-decoration:none;font-weight:bold">Apply to join your team</a>`,
       `<span style="color:#6f6c65">Not coming, or don't know ${escapeHtml(inviter)}? Just ignore this. This is the last email we'll send you about it.</span>`,
     ]),
+  };
+}
+
+/**
+ * The schedule email the dashboard sends to accepted applicants, in Niguss's
+ * words: bring a friend, or come solo and we'll pair you up; schedule attached.
+ */
+export function scheduleEmail(application: { fullName: string; email: string }, daysLeft: number): Email {
+  const name = firstName(application.fullName);
+  const discord = discordInvite();
+  const when = `${EVENT.dateLabel}, ${EVENT.timeLabel}`;
+  const calendar = calendarLinks();
+  const apply = `${siteUrl()}/apply`;
+  const schedule = `${siteUrl()}/${SCHEDULE_FILE}`;
+  const agreement = `${siteUrl()}/${AGREEMENT_FILE}`;
+  const countdown =
+    daysLeft <= 0
+      ? `${EVENT.name} is today`
+      : daysLeft === 1
+        ? `${EVENT.name} is tomorrow`
+        : `We only have ${daysLeft} days left until ${EVENT.name}`;
+  const subject =
+    daysLeft <= 0
+      ? `${EVENT.name} is today! Here's your schedule`
+      : daysLeft === 1
+        ? `${EVENT.name} is tomorrow! Here's your schedule`
+        : `Only ${daysLeft} days left until ${EVENT.name}! Here's your schedule`;
+  const soloText = discord
+    ? `Coming solo? Don't worry. Join our Discord and we'll pair you with someone who shares your interests: ${discord}`
+    : `Coming solo? Don't worry. We'll pair you with someone who shares your interests.`;
+  const soloHtml = discord
+    ? `<strong>Coming solo?</strong> Don't worry. Join our Discord and we'll pair you with someone who shares your interests:<br><a href="${escapeHtml(discord)}" style="color:#b47a12">${escapeHtml(discord)}</a>`
+    : `<strong>Coming solo?</strong> Don't worry. We'll pair you with someone who shares your interests.`;
+  return {
+    to: application.email,
+    subject,
+    text: [
+      `Hi ${name},`,
+      `${countdown}, and it's going to be a blast!`,
+      `Bring a friend! If they haven't applied yet, send them this link: ${apply}`,
+      soloText,
+      `Here's what the day looks like: your schedule is attached (also online: ${schedule}).`,
+      `When: ${when}\nWhere: ${EVENT.venue}, ${EVENT.address}`,
+      calendar.text,
+      `Please read our participant agreement before Friday: ${agreement}`,
+      `Bring a photo ID for check-in, plus your laptop and charger.`,
+      `We're so excited to see you there!`,
+      `Can't make it any more? Reply to let us know, so we can give your spot to someone else.`,
+    ].join("\n\n"),
+    html: layout([
+      `Hi ${escapeHtml(name)},`,
+      `<strong>${escapeHtml(countdown)}, and it's going to be a blast!</strong>`,
+      `<strong>Bring a friend!</strong> If they haven't applied yet, send them this link:<br><a href="${escapeHtml(apply)}" style="color:#b47a12">${escapeHtml(apply)}</a>`,
+      soloHtml,
+      `<strong>Here's what the day looks like:</strong> your schedule is attached. You can also <a href="${escapeHtml(schedule)}" style="color:#b47a12">view it online</a>.`,
+      `<strong>When:</strong> ${escapeHtml(when)}<br><strong>Where:</strong> ${escapeHtml(EVENT.venue)}, ${escapeHtml(EVENT.address)}`,
+      calendar.html,
+      `Please read our <a href="${escapeHtml(agreement)}" style="color:#b47a12">participant agreement</a> before Friday.`,
+      `Bring a photo ID for check-in, plus your laptop and charger.`,
+      `We're so excited to see you there!`,
+      `<span style="color:#6f6c65">Can't make it any more? Reply to let us know, so we can give your spot to someone else.</span>`,
+    ]),
+    attachments: [scheduleAttachment()],
   };
 }

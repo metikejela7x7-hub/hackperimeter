@@ -702,3 +702,8 @@
 .soloMore {
   grid-column: 1 / -1;
 }
+
+.downloads button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

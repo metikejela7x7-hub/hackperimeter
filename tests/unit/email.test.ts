@@ -21,18 +21,12 @@ describe("emails", () => {
     expect(confirmationEmail({ fullName: "Ada Lovelace", email: "a@example.com" }).text).toMatch(/^Hi Ada,/);
   });
 
-  it("includes the Discord invite in acceptance emails when configured", () => {
-    vi.stubEnv("DISCORD_INVITE_URL", "https://discord.gg/example");
+  it("uses the site's working Discord invite, not the expired Vercel setting", () => {
+    vi.stubEnv("DISCORD_INVITE_URL", "https://discord.gg/WG5SQVsT");
     const email = acceptanceEmail({ fullName: "Ada", email: "a@example.com" });
-    expect(email.text).toContain("https://discord.gg/example");
+    expect(email.text).toContain("https://discord.com/invite/MxZrAQRBMP");
+    expect(email.text).not.toContain("WG5SQVsT");
     expect(email.subject).toMatch(/You're in/);
-  });
-
-  it("still reads well without a Discord invite", () => {
-    vi.stubEnv("DISCORD_INVITE_URL", "");
-    expect(acceptanceEmail({ fullName: "Ada", email: "a@example.com" }).text).toContain(
-      "We'll send the Discord invite",
-    );
   });
 
   it("still sends the email if the attachment can't be fetched", async () => {
@@ -44,7 +38,7 @@ describe("emails", () => {
 
     const email = {
       ...acceptanceEmail({ fullName: "Ada", email: "a@example.com" }),
-      attachments: [{ filename: "Agenda.pdf", path: "https://hackperimeter.com/agenda.pdf" }],
+      attachments: [{ filename: "Schedule.pdf", path: "https://hackperimeter.com/schedule.pdf" }],
     };
     expect(await sendEmail(email)).toBe(true);
     expect(send).toHaveBeenCalledTimes(2);

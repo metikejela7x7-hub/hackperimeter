@@ -154,7 +154,7 @@ export function parseApplication(body: unknown): ParseResult {
 
   if (input.agreed !== true) {
     return invalid("The application must be agreed to.", {
-      agreed: "Check this box to submit your application.",
+      agreed: "Agree to the participant agreement to submit your application.",
     });
   }
 

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import {
   AGREEMENT_TEXT,
+  AGREEMENT_URL,
   EXPERIENCE_LEVELS,
   GRADUATION_YEARS,
   INTERESTS,
@@ -133,7 +134,11 @@ export function ReviewStep({ data, errors, onChange, onEdit }: ReviewStepProps) 
         error={errors.agreed}
         onChange={(agreed) => onChange({ agreed }, ["agreed"])}
       >
-        {AGREEMENT_TEXT}
+        {AGREEMENT_TEXT}{" "}
+        <a href={AGREEMENT_URL} target="_blank" rel="noopener noreferrer">
+          Read the agreement
+        </a>
+        <span className="sr-only"> (opens in a new tab)</span>
       </CheckboxField>
     </FieldStack>
   );

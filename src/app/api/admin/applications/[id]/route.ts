@@ -11,6 +11,7 @@ import { getAdmin } from "@/server/auth";
 import { acceptanceEmail, sendEmail } from "@/server/email";
 import { jsonError, serverError, unauthorized } from "@/server/http";
 import { deleteResume } from "@/server/resumes";
+import { markScheduleSent } from "@/server/scheduleEmail";
 
 /**
  * PATCH /api/admin/applications/:id { status }: record a review decision.
@@ -33,7 +34,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         if (!(await claimAcceptanceEmail(id))) return; // another request already sent it
         if (!(await sendEmail(acceptanceEmail(update.application)))) {
           await releaseAcceptanceEmail(id);
+          return;
         }
+        // The acceptance email carries the schedule, so the schedule send can skip them.
+        await markScheduleSent(id).catch((error) =>
+          console.error("[admin-update-status] could not mark schedule sent", error),
+        );
       });
     }
     return Response.json({

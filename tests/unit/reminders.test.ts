@@ -112,11 +112,10 @@ describe("calendar links", () => {
 describe("2 weeks to go reminder", () => {
   it("asks people to bring a friend and offers solo people a partner", () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://hackperimeter.com");
-    vi.stubEnv("DISCORD_INVITE_URL", "https://discord.gg/example");
     const email = weeklyReminderEmail({ fullName: "Ada Example", email: "ada@example.com" }, 2);
     expect(email.text).toContain("Bring a friend!");
     expect(email.text).toContain("https://hackperimeter.com/apply");
-    expect(email.text).toContain("we'll pair you with someone who shares your interests: https://discord.gg/example");
+    expect(email.text).toContain("we'll pair you with someone who shares your interests: https://discord.com/invite/MxZrAQRBMP");
     expect(email.text).toContain("calendar.google.com");
     // Other weeks keep the regular countdown.
     expect(weeklyReminderEmail({ fullName: "Ada", email: "a@example.com" }, 1).text).not.toContain("Bring a friend");

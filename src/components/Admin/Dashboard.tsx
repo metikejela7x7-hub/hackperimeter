@@ -14,6 +14,7 @@ import { computeStats, type Count } from "@/server/stats";
 import styles from "./Admin.module.css";
 import type { TeamEdit } from "./teamEdits";
 import { groupTeams } from "./teams";
+import { ScheduleEmailPanel } from "./ScheduleEmailPanel";
 import { TeamsView } from "./TeamsView";
 
 interface DashboardProps {
@@ -409,6 +410,8 @@ export function Dashboard({ adminEmail, applications: initial }: DashboardProps)
               </a>
             </div>
           </section>
+
+          <ScheduleEmailPanel acceptedCount={statusCounts.accepted} />
 
           <section aria-labelledby="list-title">
             <div className={styles.toolbar}>

@@ -164,9 +164,8 @@ describe("teamMatchedEmail", () => {
   });
 
   it("only gives the Discord invite to accepted applicants", () => {
-    vi.stubEnv("DISCORD_INVITE_URL", "https://discord.gg/example");
     const base = { to: "sam@example.com", fullName: "Sam", teammateNames: ["Sara"], teamName: null };
-    expect(teamMatchedEmail({ ...base, accepted: true }).text).toContain("https://discord.gg/example");
+    expect(teamMatchedEmail({ ...base, accepted: true }).text).toContain("https://discord.com/invite/MxZrAQRBMP");
     const pending = teamMatchedEmail({ ...base, accepted: false }).text;
     expect(pending).not.toContain("discord.gg");
     expect(pending).toContain("Once you're accepted");
