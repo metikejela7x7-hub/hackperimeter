@@ -61,6 +61,15 @@
   .logoItem:last-child:nth-child(4n + 1) {
     grid-column: 1 / -1;
   }
+
+  /* A pair alone on the last row sits centered, under the middle two columns. */
+  .logoItem:nth-last-child(2):nth-child(4n + 1) {
+    grid-column: 2;
+  }
+
+  .logoItem:last-child:nth-child(4n + 2) {
+    grid-column: 3;
+  }
 }
 
 .logoItem {
