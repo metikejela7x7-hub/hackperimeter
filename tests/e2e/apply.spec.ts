@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { REGISTRATION_OPEN } from "../../src/data/event";
 
 const PDF = Buffer.from("%PDF-1.7\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n");
 
@@ -37,6 +38,7 @@ async function agreeToAgreement(page: Page) {
 }
 
 test("submits an application with a resume", async ({ page }) => {
+  test.skip(!REGISTRATION_OPEN, "Registration is closed, so the form is hidden.");
   let uploaded = false;
   let sent: Record<string, unknown> | undefined;
 
@@ -65,6 +67,7 @@ test("submits an application with a resume", async ({ page }) => {
 });
 
 test("shows the server's message when the email already applied", async ({ page }) => {
+  test.skip(!REGISTRATION_OPEN, "Registration is closed, so the form is hidden.");
   await page.route("**/api/applications", (route) =>
     route.fulfill({ status: 409, json: { error: "An application with this email already exists." } }),
   );
@@ -77,6 +80,7 @@ test("shows the server's message when the email already applied", async ({ page 
 });
 
 test("rejects a non-PDF resume before upload", async ({ page }) => {
+  test.skip(!REGISTRATION_OPEN, "Registration is closed, so the form is hidden.");
   await page.goto("/apply");
   await page.getByLabel("Full name").fill("Ada Lovelace");
   await page.getByLabel("Personal email").fill("ada@example.com");
@@ -87,6 +91,14 @@ test("rejects a non-PDF resume before upload", async ({ page }) => {
   await page.getByLabel(/Resume/).setInputFiles({ name: "photo.png", mimeType: "image/png", buffer: Buffer.from("png") });
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByText("Upload your resume as a PDF.")).toBeVisible();
+});
+
+test("shows a closed notice instead of the form while registration is closed", async ({ page }) => {
+  test.skip(REGISTRATION_OPEN, "Registration is open.");
+  await page.goto("/apply");
+  await expect(page.getByRole("heading", { name: /Registration is closed/i })).toBeVisible();
+  await expect(page.getByRole("form", { name: "HackPerimeter application" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Join the Discord" })).toBeVisible();
 });
 
 test("keeps signed-out visitors out of the dashboard", async ({ page }) => {
