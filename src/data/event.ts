@@ -134,6 +134,8 @@ export interface Partner {
   /** True when `logo` is a tall, stacked mark (symbol above its lettering), shown larger so the lettering stays readable beside the wide logos. */
   stacked?: boolean;
   url?: string;
+  /** How to name it mid-sentence (e.g. in the FAQ), when that differs from `name`. */
+  inSentence?: string;
 }
 
 /**
@@ -144,7 +146,11 @@ export interface Partner {
  * as a centered pair on the last row).
  */
 export const PARTNERS: readonly Partner[] = [
-  { name: "Entrepreneurship & Innovation Institute", logo: "/images/eii-logo.png" },
+  {
+    name: "Entrepreneurship & Innovation Institute",
+    inSentence: "the Entrepreneurship & Innovation Institute",
+    logo: "/images/eii-logo.png",
+  },
   { name: "IBM", logo: "/images/ibm-logo.png" },
   { name: "Zoku", logo: "/images/zoku-logo.png" },
   { name: "DUWUN", logo: "/images/duwun-logo.png", iconOnly: true },
@@ -155,6 +161,11 @@ export const PARTNERS: readonly Partner[] = [
   { name: "Bea'Viewed", logo: "/images/bea-viewed-logo.png" },
   { name: "Major League Hacking", logo: "/images/mlh-logo.png" },
 ];
+
+/** "A, B and C". */
+function listNames(names: readonly string[]): string {
+  return names.length < 2 ? (names[0] ?? "") : `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`;
+}
 
 export interface FaqItem {
   id: string;
@@ -196,8 +207,10 @@ export const FAQ: readonly FaqItem[] = [
   {
     id: "partners",
     question: "Who is backing the event?",
-    answer:
-      "IBM Z, Accenture, The Zoku App and Duwun are partners of HackPerimeter. More partners are joining soon.",
+    // Built from PARTNERS, so it always names exactly the logos on the page.
+    answer: `HackPerimeter is hosted by Rising Tech Society and backed by ${listNames(
+      PARTNERS.map((partner) => partner.inSentence ?? partner.name),
+    )}.`,
   },
 ];
 
