@@ -17,6 +17,11 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("next/server", () => ({ after: mocks.after }));
+// These cover the application flow itself, so test with registration open.
+vi.mock("@/data/event", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/data/event")>()),
+  REGISTRATION_OPEN: true,
+}));
 vi.mock("@/server/applications", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/server/applications")>()),
   createApplication: mocks.createApplication,

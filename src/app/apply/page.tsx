@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { StarField } from "@/components/StarField/StarField";
 import { ApplyHeader } from "@/components/ApplyHeader/ApplyHeader";
 import { ApplyForm } from "@/components/ApplyForm/ApplyForm";
-import { EVENT } from "@/data/event";
+import { Button } from "@/components/Button/Button";
+import { DISCORD_URL, EVENT, REGISTRATION_OPEN } from "@/data/event";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -36,15 +37,41 @@ export default function ApplyPage() {
               <span className={styles.kickerRule} aria-hidden="true" />
               Application
             </p>
-            <h1 className={styles.title}>
-              Apply to <em>survive</em>
-            </h1>
-            <p className={styles.lead}>
-              Four short steps. {EVENT.dateLabel} · {EVENT.venue}, Clarkston, GA.
-            </p>
+            {REGISTRATION_OPEN ? (
+              <>
+                <h1 className={styles.title}>
+                  Apply to <em>survive</em>
+                </h1>
+                <p className={styles.lead}>
+                  Four short steps. {EVENT.dateLabel} · {EVENT.venue}, Clarkston, GA.
+                </p>
+              </>
+            ) : (
+              <>
+                <h1 className={`${styles.title} ${styles.titleClosed}`}>
+                  Registration is <em>closed</em>
+                </h1>
+                <p className={styles.lead}>
+                  Applications for {EVENT.name} are closed. Thanks to everyone who applied! If
+                  you&rsquo;re registered, see you {EVENT.dateLabel} at the {EVENT.venue}. Updates
+                  are posted in our Discord.
+                </p>
+              </>
+            )}
           </div>
 
-          <ApplyForm />
+          {REGISTRATION_OPEN ? (
+            <ApplyForm />
+          ) : (
+            <div className={styles.closedActions}>
+              <Button href={DISCORD_URL} size="lg">
+                Join the Discord
+              </Button>
+              <Button href="../" variant="ghost" size="lg">
+                Back to the site
+              </Button>
+            </div>
+          )}
         </main>
         <footer className={styles.footer}>
           <p>© 2026 HackPerimeter. The first-ever Perimeter College hackathon.</p>

@@ -1,4 +1,5 @@
 import { RESUME_MAX_BYTES, RESUME_MAX_LABEL } from "@/data/apply";
+import { REGISTRATION_OPEN } from "@/data/event";
 import { jsonError, serverError } from "@/server/http";
 import { RATE_LIMITS, withinRateLimit } from "@/server/rateLimit";
 import { checkResume, storeResume } from "@/server/resumes";
@@ -10,6 +11,7 @@ import { checkResume, storeResume } from "@/server/resumes";
  */
 export async function POST(request: Request) {
   try {
+    if (!REGISTRATION_OPEN) return jsonError(403, "Registration is closed.");
     const declared = Number(request.headers.get("content-length") ?? 0);
     // Multipart framing adds a little on top of the file itself.
     if (declared > RESUME_MAX_BYTES + 64 * 1024) {

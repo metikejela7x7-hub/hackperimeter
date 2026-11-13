@@ -147,3 +147,15 @@
   letter-spacing: 0.06em;
   color: var(--text-muted);
 }
+
+.closedActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* "Registration is closed": smaller, and never split "Registration" mid-word. */
+.titleClosed {
+  font-size: clamp(1.75rem, 6.5vw, 4rem);
+  overflow-wrap: normal;
+}

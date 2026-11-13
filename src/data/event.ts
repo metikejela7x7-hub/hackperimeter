@@ -31,6 +31,13 @@ export const EVENT = {
 export const HOME_URL = "/";
 export const APPLY_URL = "/apply";
 
+/**
+ * Applications are closed: the apply page shows a notice, the API rejects new
+ * applications, Apply buttons become Discord buttons, and the homepage
+ * countdown sits at zero. Set back to true to reopen.
+ */
+export const REGISTRATION_OPEN = false;
+
 export const NAV_LINKS = [
   { href: "#facts", label: "Facts" },
   { href: "#mission", label: "Mission" },
@@ -193,3 +200,6 @@ export const FAQ: readonly FaqItem[] = [
       "IBM Z, Accenture, The Zoku App and Duwun are partners of HackPerimeter. More partners are joining soon.",
   },
 ];
+
+/** The Discord invite (never expires): the site's header and footer, and all emails. */
+export const DISCORD_URL = SOCIAL_LINKS.find((link) => link.id === "discord")!.href;

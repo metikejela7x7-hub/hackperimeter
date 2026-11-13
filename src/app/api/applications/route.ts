@@ -1,4 +1,5 @@
 import { after } from "next/server";
+import { REGISTRATION_OPEN } from "@/data/event";
 import { createApplication, parseApplication } from "@/server/applications";
 import { jsonError, serverError } from "@/server/http";
 import { notifyNewApplication } from "@/server/notifications";
@@ -8,6 +9,7 @@ import { linkListedTeammates } from "@/server/teamLinks";
 /** POST /api/applications: submit an application (JSON, see ApplicationRequest). */
 export async function POST(request: Request) {
   try {
+    if (!REGISTRATION_OPEN) return jsonError(403, "Registration is closed.");
     if (!(await withinRateLimit(request, RATE_LIMITS.apply))) {
       return jsonError(429, "Too many attempts. Please wait a bit and try again.");
     }

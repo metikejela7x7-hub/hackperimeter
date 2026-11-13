@@ -1,4 +1,4 @@
-import { APPLY_URL, EVENT, NAV_LINKS } from "@/data/event";
+import { APPLY_URL, DISCORD_URL, EVENT, NAV_LINKS, REGISTRATION_OPEN } from "@/data/event";
 import { Button } from "@/components/Button/Button";
 import { SocialLinks } from "@/components/SocialLinks/SocialLinks";
 import styles from "./Footer.module.css";
@@ -13,7 +13,11 @@ export function Footer() {
               Hack<span>Perimeter</span>
             </p>
             <p className={styles.slogan}>{EVENT.slogan}</p>
-            <Button href={APPLY_URL}>Apply to survive</Button>
+            {REGISTRATION_OPEN ? (
+              <Button href={APPLY_URL}>Apply to survive</Button>
+            ) : (
+              <Button href={DISCORD_URL}>Join the Discord</Button>
+            )}
             <SocialLinks variant="footer" />
           </div>
 

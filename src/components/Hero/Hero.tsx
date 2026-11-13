@@ -1,4 +1,4 @@
-import { APPLY_URL, EVENT } from "@/data/event";
+import { APPLY_URL, DISCORD_URL, EVENT, REGISTRATION_OPEN } from "@/data/event";
 import { Button } from "@/components/Button/Button";
 import { Countdown } from "@/components/Countdown/Countdown";
 import { Globe } from "./Globe";
@@ -118,9 +118,15 @@ export function Hero() {
         <p className={styles.slogan}>{EVENT.slogan}</p>
 
         <div className={styles.actions}>
-          <Button href={APPLY_URL} size="lg">
-            Apply to survive
-          </Button>
+          {REGISTRATION_OPEN ? (
+            <Button href={APPLY_URL} size="lg">
+              Apply to survive
+            </Button>
+          ) : (
+            <Button href={DISCORD_URL} size="lg">
+              Join the Discord
+            </Button>
+          )}
           <Button href="#mission" variant="ghost" size="lg">
             Read the briefing
           </Button>

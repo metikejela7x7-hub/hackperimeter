@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { APPLY_URL, NAV_LINKS } from "@/data/event";
+import { APPLY_URL, DISCORD_URL, NAV_LINKS, REGISTRATION_OPEN } from "@/data/event";
 import { Button } from "@/components/Button/Button";
 import { SocialLinks } from "@/components/SocialLinks/SocialLinks";
 import styles from "./Navbar.module.css";
@@ -154,9 +154,15 @@ export function Navbar() {
           </ul>
           <SocialLinks />
           <div className={styles.cta}>
-            <Button href={APPLY_URL} onClick={() => close()}>
-              Apply to survive
-            </Button>
+            {REGISTRATION_OPEN ? (
+              <Button href={APPLY_URL} onClick={() => close()}>
+                Apply to survive
+              </Button>
+            ) : (
+              <Button href={DISCORD_URL} onClick={() => close()}>
+                Join the Discord
+              </Button>
+            )}
           </div>
         </nav>
       </div>

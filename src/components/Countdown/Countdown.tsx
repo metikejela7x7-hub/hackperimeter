@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { EVENT } from "@/data/event";
+import { EVENT, REGISTRATION_OPEN } from "@/data/event";
 import styles from "./Countdown.module.css";
 
 type Phase = "before" | "live" | "after";
@@ -32,6 +32,9 @@ const LABELS: Record<Phase, string> = {
   after: "",
 };
 
+/** Shown with the countdown held at zero once registration has closed. */
+const CLOSED_LABEL = "Registration closed";
+
 export function Countdown() {
   // null until mounted, so server and first client render match.
   const [now, setNow] = useState<number | null>(null);
@@ -53,22 +56,27 @@ export function Countdown() {
     );
   }
 
-  const values =
-    now === null
+  // Registration closed: hold the countdown at zero until the event ends.
+  const values = !REGISTRATION_OPEN
+    ? [0, 0, 0, 0]
+    : now === null
       ? null
       : split((phase === "before" ? EVENT.startsAt : EVENT.endsAt) - now);
+  const label = REGISTRATION_OPEN ? LABELS[phase] : CLOSED_LABEL;
 
-  const summary = values
-    ? `${values[0]} days, ${values[1]} hours, ${values[2]} minutes and ${values[3]} seconds ${
-        phase === "before" ? "until HackPerimeter begins" : "left in HackPerimeter"
-      }`
-    : "Countdown loading";
+  const summary = !REGISTRATION_OPEN
+    ? "Registration is closed"
+    : values
+      ? `${values[0]} days, ${values[1]} hours, ${values[2]} minutes and ${values[3]} seconds ${
+          phase === "before" ? "until HackPerimeter begins" : "left in HackPerimeter"
+        }`
+      : "Countdown loading";
 
   return (
-    <div className={styles.countdown} role="timer" aria-label={LABELS[phase]}>
+    <div className={styles.countdown} role="timer" aria-label={label}>
       <p className={styles.label}>
         <span className={styles.pulse} aria-hidden="true" />
-        {LABELS[phase]}
+        {label}
       </p>
       <p className="sr-only">{summary}</p>
       <ol className={styles.units} aria-hidden="true">
